@@ -6,7 +6,7 @@ import json
 
 def test_gemini_api():
     """Test the Gemini API directly."""
-    api_key = "AIzaSyBxCDT1vtb0h220IiO7AjobnjhdVVMRx-c"
+    api_key = ""
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
     
     headers = {
