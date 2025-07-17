@@ -14,7 +14,7 @@ export const Route = createRootRoute({
                 to="/" 
                 className="text-lg font-semibold text-foreground hover:text-primary transition-colors"
               >
-                React Template
+                SOL2INK
               </Link>
               <div className="hidden sm:flex space-x-6">
                 <Link 
