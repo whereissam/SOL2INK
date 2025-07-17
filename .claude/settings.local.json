@@ -52,7 +52,6 @@
       "Bash(python3:*)",
       "Bash(source:*)",
       "Bash(pip install:*)",
-      "Bash(QDRANT_URL=https://3bf0d9e0-378e-4a1e-af7b-32f5578aa222.europe-west3-0.gcp.cloud.qdrant.io:6334 QDRANT_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.hoeTAQEOHcmAWyRUAUQZOVv5Bv983LblSkzMuOCphKU python3 test_qdrant.py)",
       "Bash(docker run:*)",
       "Bash(QDRANT_URL=http://localhost:6334 python3 test_qdrant.py)",
       "Bash(cargo:*)",
