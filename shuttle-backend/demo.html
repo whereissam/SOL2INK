@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AiDoc - Smart Contract Assistant</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+        
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .search-section {
+            margin-bottom: 30px;
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .search-btn {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .search-btn:hover {
+            background: #5a67d8;
+        }
+        
+        .search-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .format-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .format-btn {
+            padding: 10px 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .format-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .quick-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .example-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .example-card:hover {
+            background: #e3f2fd;
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .example-card h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .example-card p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .results-section {
+            margin-top: 30px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #c62828;
+        }
+        
+        .result-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .result-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+        
+        .relevance-score {
+            background: #667eea;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+        
+        .result-description {
+            color: #666;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+        
+        .code-block {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 15px;
+        }
+        
+        .source-file {
+            color: #666;
+            font-size: 0.9em;
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .markdown-content {
+            line-height: 1.6;
+        }
+        
+        .markdown-content h1 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .markdown-content h2 {
+            color: #555;
+            margin-top: 30px;
+        }
+        
+        .markdown-content pre {
+            background: #282c34;
+            color: #abb2bf;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        
+        .markdown-content code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .markdown-content pre code {
+            background: transparent;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AiDoc</h1>
+            <p>Your AI-powered smart contract assistant for Polkadot ink! development</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="search-section">
+                <div class="search-box">
+                    <input type="text" class="search-input" placeholder="Ask about ink! smart contracts, ERC20 tokens, storage, events..." id="searchInput">
+                    <button class="search-btn" onclick="performSearch()" id="searchBtn">Search</button>
+                </div>
+                
+                <div class="format-toggle">
+                    <button class="format-btn active" onclick="setFormat('structured')" id="structuredBtn">📋 Structured</button>
+                    <button class="format-btn" onclick="setFormat('markdown')" id="markdownBtn">📝 Markdown</button>
+                </div>
+                
+                <div class="quick-examples">
+                    <div class="example-card" onclick="searchExample('Show me ERC20 token implementation in ink')">
+                        <h3>🪙 ERC20 Token</h3>
+                        <p>Get a complete ERC20 token implementation with transfer, approve, and balance functions</p>
+                    </div>
+                    <div class="example-card" onclick="searchExample('How to use storage in ink contracts')">
+                        <h3>💾 Storage Patterns</h3>
+                        <p>Learn about storage mapping, vectors, and data structures in ink! contracts</p>
+                    </div>
+                    <div class="example-card" onclick="searchExample('ink contract events and logging')">
+                        <h3>📡 Events & Logging</h3>
+                        <p>Understand how to emit events and handle contract logging in ink!</p>
+                    </div>
+                    <div class="example-card" onclick="searchExample('cross contract calls in ink')">
+                        <h3>🔗 Cross-Contract Calls</h3>
+                        <p>Examples of calling other contracts and handling cross-contract interactions</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="results-section" id="resultsSection">
+                <div style="text-align: center; color: #666; padding: 40px;">
+                    <h2>👋 Welcome to AiDoc!</h2>
+                    <p>Search for ink! smart contract examples above or click on the quick examples to get started.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFormat = 'structured';
+        
+        function setFormat(format) {
+            currentFormat = format;
+            document.getElementById('structuredBtn').classList.toggle('active', format === 'structured');
+            document.getElementById('markdownBtn').classList.toggle('active', format === 'markdown');
+        }
+        
+        function searchExample(query) {
+            document.getElementById('searchInput').value = query;
+            performSearch();
+        }
+        
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        async function performSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+            
+            const searchBtn = document.getElementById('searchBtn');
+            const resultsSection = document.getElementById('resultsSection');
+            
+            // Show loading
+            searchBtn.disabled = true;
+            searchBtn.textContent = 'Searching...';
+            resultsSection.innerHTML = `
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Searching for relevant ink! smart contract examples...</p>
+                </div>
+            `;
+            
+            try {
+                const endpoint = currentFormat === 'structured' ? '/ask/structured' : '/ask';
+                const response = await fetch(`http://localhost:8000${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ query })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (currentFormat === 'structured') {
+                        displayStructuredResults(data.data);
+                    } else {
+                        displayMarkdownResults(data.data);
+                    }
+                } else {
+                    throw new Error(data.error || 'Search failed');
+                }
+            } catch (error) {
+                resultsSection.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Error</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            } finally {
+                searchBtn.disabled = false;
+                searchBtn.textContent = 'Search';
+            }
+        }
+        
+        function displayStructuredResults(data) {
+            const resultsSection = document.getElementById('resultsSection');
+            
+            if (!data.examples || data.examples.length === 0) {
+                resultsSection.innerHTML = `
+                    <div class="result-card">
+                        <h2>No Results Found</h2>
+                        <p>${data.summary}</p>
+                        <p><strong>Suggestion:</strong> ${data.help_text}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div class="result-card">
+                    <h2>🔍 Query: ${data.query}</h2>
+                    <p>${data.summary}</p>
+                </div>
+            `;
+            
+            data.examples.forEach((example, index) => {
+                html += `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <h3 class="result-title">📄 ${example.title}</h3>
+                            <div class="relevance-score">${example.relevance_score.toFixed(1)}%</div>
+                        </div>
+                        ${example.description ? `<p class="result-description">${example.description}</p>` : ''}
+                        <div class="code-block">${escapeHtml(example.code)}</div>
+                        ${example.source_file ? `<div class="source-file">📁 ${example.source_file}</div>` : ''}
+                    </div>
+                `;
+            });
+            
+            html += `
+                <div class="result-card">
+                    <h3>💡 Help</h3>
+                    <p>${data.help_text}</p>
+                </div>
+            `;
+            
+            resultsSection.innerHTML = html;
+        }
+        
+        function displayMarkdownResults(markdown) {
+            const resultsSection = document.getElementById('resultsSection');
+            
+            // Convert markdown to HTML (basic conversion)
+            let html = markdown
+                .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+                .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/```rust\n([\s\S]*?)\n```/g, '<pre class="code-block">$1</pre>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>');
+            
+            resultsSection.innerHTML = `<div class="markdown-content"><p>${html}</p></div>`;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

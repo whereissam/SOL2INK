@@ -1,0 +1,16 @@
+[package]
+name = "dynavest-shuttle-backend"
+version = "0.1.0"
+
+[build]
+assets = []
+
+[deploy]
+# Environment variables for deployment
+# These can be set via Shuttle CLI or dashboard
+# shuttle project env set KEY=value
+
+[secrets]
+# Example secrets (set via Shuttle CLI)
+# CONTRACT_ADDRESS = "your-contract-address"
+# RPC_URL = "wss://moonbeam-alpha.api.onfinality.io/public-ws"

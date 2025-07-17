@@ -1,0 +1,71 @@
+[package]
+name = "dynavest-shuttle-backend"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "dynavest_shuttle_backend"
+path = "src/lib.rs"
+
+[[bin]]
+name = "test_connection"
+path = "test_connection.rs"
+
+[dependencies]
+# Shuttle dependencies
+shuttle-runtime = "0.56.0"
+shuttle-axum = "0.56.0"
+shuttle-shared-db = { version = "0.56.0", features = ["postgres"] }
+shuttle-qdrant = "0.56.0"
+
+# Core web framework (use shuttle-axum's version)
+# axum = "0.7.5"
+tokio = { version = "1.0", features = ["full"] }
+tower = "0.4"
+tower-http = { version = "0.5", features = ["cors", "timeout", "limit"] }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Database
+sqlx = { version = "0.8", features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "json"] }
+
+# Utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"
+anyhow = "1.0"
+
+# Cross-chain and blockchain client
+reqwest = { version = "0.12", features = ["json"] }
+subxt = "0.37"
+ethers = "2.0"
+
+# Qdrant client
+qdrant-client = "1.7.0"
+
+# Removed OpenAI - using only Gemini API
+
+# Google Gemini API client - using reqwest for HTTP calls
+# google-generativeai = "0.4"
+
+# Hyperbridge dependencies (for cross-chain interoperability)
+# Note: These are placeholders as Hyperbridge SDK is still in development
+# We'll implement a compatible interface for cross-chain queries
+
+# Random for mock data
+rand = "0.8"
+
+# Rust decimal for financial calculations
+rust_decimal = { version = "1.0", features = ["serde"] }
+
+# Environment variables
+dotenv = "0.15"
+
+# Parsing dependencies for migration training system
+regex = "1.10"
+
+[dev-dependencies]
+axum-test = "15.0"
