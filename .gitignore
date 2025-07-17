@@ -1,6 +1,7 @@
 
 crates/
 ink-examples-main/
+
 solidity-examples/cache/
 solidity-examples/node_modules/
 solidity-examples/target/
@@ -15,3 +16,4 @@ solidity-examples/coverage.lcov.json
 shuttle-backend/venv/
 shuttle-backend/target/
 shuttle-backend/.env
+shuttle-backend/qdrant_storage/

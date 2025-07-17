@@ -1,0 +1,143 @@
+{
+  "comprehensive_test": {
+    "error": "illegal request line"
+  },
+  "coverage_test": {
+    "expected_guides": [
+      "counter",
+      "flipper",
+      "simple_storage",
+      "event_emitter",
+      "erc721_nft",
+      "multisig_wallet",
+      "erc20",
+      "erc1155",
+      "escrow_vesting",
+      "main_tutorial"
+    ],
+    "accessible_guides": 0,
+    "coverage_percentage": 0.0,
+    "guide_results": {
+      "counter": {
+        "total_results": 0,
+        "guide_specific_results": 0,
+        "accessible": false
+      },
+      "flipper": {
+        "total_results": 0,
+        "guide_specific_results": 0,
+        "accessible": false
+      },
+      "simple_storage": {
+        "total_results": 0,
+        "guide_specific_results": 0,
+        "accessible": false
+      },
+      "event_emitter": {
+        "total_results": 0,
+        "guide_specific_results": 0,
+        "accessible": false
+      },
+      "erc721_nft": {
+        "total_results": 0,
+        "guide_specific_results": 0,
+        "accessible": false
+      },
+      "multisig_wallet": {
+        "total_results": 0,
+        "guide_specific_results": 0,
+        "accessible": false
+      },
+      "erc20": {
+        "total_results": 0,
+        "guide_specific_results": 0,
+        "accessible": false
+      },
+      "erc1155": {
+        "total_results": 0,
+        "guide_specific_results": 0,
+        "accessible": false
+      },
+      "escrow_vesting": {
+        "total_results": 0,
+        "guide_specific_results": 0,
+        "accessible": false
+      },
+      "main_tutorial": {
+        "total_results": 0,
+        "guide_specific_results": 0,
+        "accessible": false
+      }
+    }
+  },
+  "scenario_test": {
+    "scenarios_tested": 5,
+    "successful_scenarios": 0,
+    "success_rate": 0.0,
+    "scenario_results": [
+      {
+        "name": "Beginner Migration",
+        "query": "I'm new to ink!, how do I start migrating from Solidity?",
+        "results_found": 0,
+        "expected_guides": [
+          "counter",
+          "flipper",
+          "main_tutorial"
+        ],
+        "expected_guides_found": [],
+        "difficulty_match": false,
+        "concepts_match": false,
+        "success": false
+      },
+      {
+        "name": "Token Standard Migration",
+        "query": "How do I migrate my ERC20 token to ink!?",
+        "results_found": 0,
+        "expected_guides": [
+          "erc20"
+        ],
+        "expected_guides_found": [],
+        "difficulty_match": false,
+        "concepts_match": false,
+        "success": false
+      },
+      {
+        "name": "Complex Contract Migration",
+        "query": "How do I migrate a complex multisig wallet to ink!?",
+        "results_found": 0,
+        "expected_guides": [
+          "multisig_wallet"
+        ],
+        "expected_guides_found": [],
+        "difficulty_match": false,
+        "concepts_match": false,
+        "success": false
+      },
+      {
+        "name": "Event Handling Migration",
+        "query": "How do events work differently in ink! compared to Solidity?",
+        "results_found": 0,
+        "expected_guides": [
+          "event_emitter"
+        ],
+        "expected_guides_found": [],
+        "difficulty_match": false,
+        "concepts_match": false,
+        "success": false
+      },
+      {
+        "name": "Storage Pattern Migration",
+        "query": "How do I convert Solidity mappings to ink! storage?",
+        "results_found": 0,
+        "expected_guides": [
+          "simple_storage"
+        ],
+        "expected_guides_found": [],
+        "difficulty_match": false,
+        "concepts_match": false,
+        "success": false
+      }
+    ]
+  },
+  "test_timestamp": "unknown"
+}

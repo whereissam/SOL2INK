@@ -70,7 +70,8 @@
       "Bash(forge test:*)",
       "Bash(forge build:*)",
       "Bash(SHUTTLE_ENV=local cargo run --bin dynavest-shuttle-backend)",
-      "Bash(python test:*)"
+      "Bash(python test:*)",
+      "Bash(npm install:*)"
     ],
     "deny": []
   }

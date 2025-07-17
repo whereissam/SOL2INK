@@ -1,6 +1,14 @@
-# 🤖 RAG-Based Developer Assistant (Rust + Qdrant + Gemini)
+# 🤖 Solidity to ink! Migration Assistant (Rust + Qdrant + Gemini)
 
-A comprehensive RAG-powered developer assistant built with Rust and Shuttle.dev. Ask natural language questions about your codebase and get accurate, context-aware answers using Retrieval-Augmented Generation (RAG) with Gemini API.
+A comprehensive RAG-powered migration assistant built with Rust and Shuttle.dev. Ask natural language questions about migrating smart contracts from Solidity to ink! and get accurate, context-aware answers using Retrieval-Augmented Generation (RAG) with Gemini API.
+
+## 🎯 What This System Does
+
+- **📚 10+ Migration Guides**: Complete guides for migrating common contract patterns from Solidity to ink!
+- **🔍 180+ Code Examples**: Real Solidity and ink! contract implementations for comparison
+- **🧠 AI-Powered Guidance**: RAG system that provides contextual migration advice
+- **⚡ Semantic Search**: Find relevant migration patterns and code examples instantly
+- **🔄 Side-by-Side Comparisons**: See Solidity and ink! implementations together
 
 ## 🚀 Quick Start - How to Use
 
@@ -16,8 +24,11 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# 3. Embed your codebase (already done for ink-examples)
-python3 embed_codebase.py ../ink-examples-main --collection code_knowledge
+# 3. Embed migration guides and examples (includes both Solidity and ink! examples)
+python3 embed_migration_guides.py ../docs/migrations \
+  --solidity-examples ../solidity-examples \
+  --ink-examples ../ink-examples-main \
+  --collection migration_guides
 
 # 4. Add your Gemini API key to .env
 echo "GEMINI_API_KEY=your_actual_gemini_api_key_here" >> .env
@@ -30,35 +41,172 @@ echo "GEMINI_API_KEY=your_actual_gemini_api_key_here" >> .env
 cargo run --bin dynavest-shuttle-backend
 ```
 
-### 3. **Ask Questions!**
+### 3. **Ask Migration Questions!**
 
 ```bash
-# Method 1: GET request
-curl "http://localhost:8000/ask?query=How does the flipper contract work?"
+# ✅ CORRECT: GET request with proper URL encoding
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=How does the flipper contract work?"
 
-# Method 2: POST request  
+# ✅ CORRECT: POST request with JSON
 curl -X POST "http://localhost:8000/ask" \
   -H "Content-Type: application/json" \
-  -d '{"query": "Show me ERC20 token implementation in ink"}'
+  -d '{"query": "How do I migrate ERC20 tokens from Solidity to ink!?"}'  
+
+# ❌ WRONG: This will give "URL rejected: Malformed input" error
+# curl "http://localhost:8000/ask?query=How does the flipper contract work?"
 ```
 
-### 4. **Example Queries You Can Ask**
+### 4. **Migration Questions You Can Ask**
 
-- `"How does the flipper contract work?"`
-- `"Show me ERC20 token implementation in ink"`
-- `"What are cross-contract calls in ink?"`
-- `"How do I implement storage in ink contracts?"`
-- `"What is the incrementer contract?"`
-- `"How do I write tests for ink contracts?"`
+- `"How do I migrate ERC20 tokens from Solidity to ink!?"`
+- `"What are the key differences between Solidity and ink!?"`
+- `"Show me how to implement multisig wallets in ink!"`
+- `"How do events work differently in ink! compared to Solidity?"`
+- `"How do I convert Solidity mappings to ink! storage?"`
+- `"What are the migration steps for escrow contracts?"`
+- `"Show me event handling examples in both languages"`
 
-### 5. **Expected Response**
+### 5. **Response Formats & Examples**
 
+#### ✅ Successful Response Format
 ```json
 {
   "success": true,
-  "data": "The flipper contract is a simple ink! smart contract that demonstrates basic contract structure. It stores a boolean value and provides functions to toggle and read this value...",
+  "data": "## Flipper Contract Explained: Solidity vs. Ink!\n\nThe `flipper` contract is a simple example demonstrating core concepts in both Solidity and Ink!...",
   "error": null
 }
+```
+
+#### 📄 Pretty Formatted Response (use `jq` for readable output)
+```bash
+# Get nicely formatted response
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=How do I implement ERC20 tokens in ink!?" | jq -r '.data'
+```
+
+#### 📋 Example Migration Response
+When you ask about ERC20 migration, you get:
+
+**✅ Comprehensive comparison tables** showing Solidity vs ink! differences
+**✅ Step-by-step migration instructions** with actual code examples  
+**✅ Before/after code snippets** from real contracts
+**✅ Best practices and gotchas** specific to the migration
+**✅ Testing and deployment guidance**
+
+#### 🎯 Sample Response for "How do I migrate ERC20 tokens?"
+```markdown
+## ERC20 Token Migration: Solidity to ink!
+
+### Key Differences Table
+| Feature | Solidity | ink! |
+|---------|----------|------|
+| Storage | mapping(address => uint256) | Mapping<AccountId, Balance> |
+| Events  | event Transfer(...) | #[ink(event)] Transfer { ... } |
+| Errors  | require(...) | Result<(), Error> |
+
+### Migration Steps
+1. **Convert storage structure**
+2. **Update function signatures** 
+3. **Implement error handling**
+4. **Add event definitions**
+5. **Update tests**
+
+### Code Examples
+**Before (Solidity):**
+```solidity
+function transfer(address to, uint256 value) public returns (bool) {
+    require(balances[msg.sender] >= value);
+    // ... rest of implementation
+}
+```
+
+**After (ink!):**
+```rust
+#[ink(message)]
+pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<(), Error> {
+    let caller = self.env().caller();
+    // ... rest of implementation
+}
+```
+
+### 6. **Getting Formatted Responses**
+
+#### 🎨 Pretty Print with `jq` (Recommended)
+```bash
+# Install jq if you don't have it: brew install jq (macOS) or apt install jq (Linux)
+
+# Get clean markdown response without JSON wrapper
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=How do I migrate ERC20 tokens?" | jq -r '.data'
+
+# Get just the success status
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=test" | jq '.success'
+
+# Handle errors gracefully
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=test" | jq -r 'if .error then .error else .data end'
+```
+
+#### 📱 Raw JSON Response
+```bash
+# Get full JSON response (useful for programmatic access)
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=What are the differences between Solidity and ink!?"
+```
+
+#### 🐍 Python Client Example
+```python
+import requests
+import json
+
+# Simple query
+response = requests.get(
+    "http://localhost:8000/ask",
+    params={"query": "How do multisig wallets work in ink!?"}
+)
+
+data = response.json()
+if data["success"]:
+    print(data["data"])  # Clean markdown output
+else:
+    print(f"Error: {data['error']}")
+```
+
+#### 🌐 JavaScript/Browser Example
+```javascript
+// Using fetch API
+async function askMigrationQuestion(query) {
+    const response = await fetch(`http://localhost:8000/ask?${new URLSearchParams({query})}`);
+    const data = await response.json();
+    
+    if (data.success) {
+        return data.data; // Markdown content
+    } else {
+        throw new Error(data.error);
+    }
+}
+
+// Usage
+askMigrationQuestion("How do I implement events in ink!?")
+    .then(answer => console.log(answer))
+    .catch(error => console.error(error));
+```
+
+### 7. **Test Your Setup**
+
+```bash
+# Quick health check
+curl http://localhost:8000/health
+
+# Test with simple question
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=Hello" | jq -r '.data'
+
+# Test migration-specific question  
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=How does the flipper contract work?" | jq -r '.data'
 ```
 
 ## ⚡ Prerequisites
@@ -1025,3 +1173,98 @@ AI Recommendation → User Approval → Database Storage → Contract Interactio
 ✅ **Auto-Scaling** deployment on Shuttle.dev  
 
 Built with ❤️ using Rust, Shuttle.dev, and modern AI technology for the Polkadot ecosystem.
+
+---
+
+## 🔗 Quick Reference: curl Commands
+
+### ✅ Correct Testing Commands
+
+```bash
+# 1. Health check
+curl http://localhost:8000/health
+
+# 2. Basic migration question (with jq for clean output)
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=How does the flipper contract work?" | jq -r '.data'
+
+# 3. ERC20 migration question
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=How do I migrate ERC20 tokens from Solidity to ink!?" | jq -r '.data'
+
+# 4. Comparison question
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=What are the key differences between Solidity and ink!?" | jq -r '.data'
+
+# 5. Event handling question
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=Show me event handling examples" | jq -r '.data'
+
+# 6. Multisig wallet question
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=How do I implement multisig wallets in ink!?" | jq -r '.data'
+
+# 7. POST method (alternative)
+curl -X POST "http://localhost:8000/ask" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "How do I convert Solidity mappings to ink! storage?"}' | jq -r '.data'
+```
+
+### ❌ Common Mistakes to Avoid
+
+```bash
+# DON'T: This will fail with "URL rejected: Malformed input"
+curl "http://localhost:8000/ask?query=How does the flipper contract work?"
+
+# DON'T: Missing Content-Type header for POST
+curl -X POST "http://localhost:8000/ask" -d '{"query": "test"}'
+```
+
+### 🐚 **Shell Compatibility (zsh/bash)**
+
+**Problem**: `!` character causes issues in zsh
+```bash
+# ❌ This fails in zsh: "no such event"
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=How do I implement ERC20 tokens in ink!?" | jq -r '.data'
+```
+
+**Solutions**:
+```bash
+# ✅ Solution 1: Use single quotes
+curl -X GET 'http://localhost:8000/ask' -G \
+  --data-urlencode 'query=How do I implement ERC20 tokens in ink!?' | jq -r '.data'
+
+# ✅ Solution 2: Escape the exclamation mark
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=How do I implement ERC20 tokens in ink\!" | jq -r '.data'
+
+# ✅ Solution 3: Use POST method (no URL encoding issues)
+curl -X POST "http://localhost:8000/ask" \
+  -H "Content-Type: application/json" \
+  -d '{"query": "How do I implement ERC20 tokens in ink!?"}' | jq -r '.data'
+
+# ✅ Solution 4: Omit the exclamation mark
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=How do I implement ERC20 tokens in ink" | jq -r '.data'
+```
+
+### 🎯 Response Types You'll Get
+
+- **📊 Comparison Tables**: Side-by-side Solidity vs ink! feature comparisons
+- **📝 Step-by-step Guides**: Detailed migration instructions
+- **💻 Code Examples**: Real before/after contract implementations  
+- **⚠️ Best Practices**: Security, testing, and optimization tips
+- **🚀 Deployment Guidance**: How to deploy and test migrated contracts
+
+### 🛠️ Troubleshooting
+
+**"Connection refused"**: Make sure your Rust server is running with `cargo run --bin dynavest-shuttle-backend`
+
+**"Gemini API slow/unavailable"**: API rate limiting - wait a moment and try again
+
+**Empty/error responses**: Check that Qdrant is running with `docker ps | grep qdrant`
+
+---
+
+**Ready to migrate your smart contracts? Start asking questions!** 🚀
