@@ -837,6 +837,49 @@ cargo test test_health_check
 cargo test --test integration_tests
 ```
 
+### Frontend-Backend Integration Testing
+
+#### Integration Test Script
+Run the comprehensive integration test from the project root:
+
+```bash
+# From project root directory
+python3 test_integration.py
+```
+
+This tests:
+- Backend health endpoint connectivity
+- Ask endpoint functionality with real queries
+- Complete integration workflow
+- Error handling scenarios
+- Frontend-backend communication
+
+#### Expected Integration Test Output
+```bash
+🧪 Testing Backend Endpoints
+==================================================
+
+1. Testing /health endpoint...
+✅ Health check: DynaVest Shuttle Backend is running!
+
+2. Testing /ask endpoint...
+✅ Ask endpoint: Response received (156 chars)
+   Preview: The flipper contract is a simple ink! smart contract that demonstrates basic contract structure...
+
+✅ Backend endpoint testing completed!
+
+🌐 Testing Frontend Connection
+==================================================
+✅ Frontend reachable at http://localhost:5173
+
+🔄 Testing Integration Workflow
+==================================================
+1. Testing query: How do I migrate ERC20 tokens from Solidity to ink...
+✅ Query 1: Success (892 chars)
+
+🎉 Integration test completed successfully!
+```
+
 ### API Testing
 
 #### Quick Test Script
@@ -846,29 +889,64 @@ cargo test --test integration_tests
 ```
 
 #### Manual Testing Examples
+
+##### Core Migration Assistant Endpoints
 ```bash
 # Test health check
 curl -X GET http://localhost:8000/health
 
-# Test AI chat
-curl -X POST http://localhost:8000/chat \
+# Test migration assistant (main endpoint used by frontend)
+curl -X POST http://localhost:8000/ask \
   -H "Content-Type: application/json" \
-  -d '{"message": "What are the best DeFi strategies?", "user_id": "test-user"}'
+  -d '{"query": "How do I migrate ERC20 tokens from Solidity to ink!?"}'
+
+# Test with GET method and URL encoding
+curl -X GET "http://localhost:8000/ask" -G \
+  --data-urlencode "query=What are the key differences between Solidity and ink!?"
+```
+
+##### Frontend-Backend Communication Test
+```bash
+# Test the exact request pattern the frontend uses
+curl -X POST "http://localhost:8000/ask" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"query": "How do I implement multisig wallets in ink!?"}' \
+  --timeout 30
+
+# Test connection health check (frontend connectivity monitoring)
+curl -X GET "http://localhost:8000/health" \
+  --timeout 5 \
+  --fail
+```
+
+##### RAG System Testing
+```bash
+# Test semantic search
+curl -X POST http://localhost:8000/rag/search \
+  -H "Content-Type: application/json" \
+  -d '{"query": "storage mapping AccountId", "limit": 5, "score_threshold": 0.7}'
 
 # Test RAG query with context
 curl -X POST http://localhost:8000/rag/query \
   -H "Content-Type: application/json" \
-  -d '{"query": "What is impermanent loss?", "limit": 3}'
-
-# Test semantic search
-curl -X POST http://localhost:8000/rag/search \
-  -H "Content-Type: application/json" \
-  -d '{"query": "yield farming", "limit": 5, "score_threshold": 0.7}'
+  -d '{"query": "How do cross-contract calls work in ink?", "limit": 3}'
 
 # Test adding document to knowledge base
 curl -X POST http://localhost:8000/rag/document \
   -H "Content-Type: application/json" \
-  -d '{"text": "DeFi yield farming involves providing liquidity to decentralized protocols..."}'
+  -d '{"text": "ink! smart contract migration guide for events..."}'
+
+# Get RAG system statistics
+curl -X GET http://localhost:8000/rag/stats
+```
+
+##### Other API Endpoints
+```bash
+# Test AI chat
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What are the best DeFi strategies?", "user_id": "test-user"}'
 
 # Test DeFi info (Python backend compatible)
 curl -X POST http://localhost:8000/defiInfo \
@@ -887,6 +965,71 @@ curl -X POST http://localhost:8000/strategies \
 curl -X POST http://localhost:8000/cross-chain/strategy \
   -H "Content-Type: application/json" \
   -d '{"account":"0x123","risk_level":5,"investment_amount":10000.0}'
+```
+
+### Testing with Frontend
+
+#### Prerequisites for Integration Testing
+1. **Backend Running**: Ensure `cargo run` is active on port 8000
+2. **Frontend Running**: Ensure `npm run dev` is active on port 5173  
+3. **Qdrant Running**: Ensure `docker run -p 6334:6334 qdrant/qdrant` is active
+4. **Environment Setup**: Ensure `.env` has valid `GEMINI_API_KEY`
+
+#### Frontend Testing Scenarios
+
+**Test Connection Status Monitoring:**
+1. Start frontend with backend running - should show "Backend connected"
+2. Stop backend - should show "Backend disconnected" with retry button
+3. Restart backend - should automatically reconnect
+
+**Test Error Handling:**
+1. Submit query with backend stopped - should show retry options
+2. Submit very long query - should handle timeout gracefully
+3. Submit empty query - should show validation error
+
+**Test Migration Queries:**
+1. Click example queries - should get immediate responses
+2. Type custom queries - should work with Cmd/Ctrl+Enter
+3. Test keyboard shortcuts - should submit properly
+
+**Test Response Rendering:**
+1. Check markdown formatting in responses
+2. Verify syntax highlighting in code blocks
+3. Test copy functionality for code examples
+
+#### Common Testing Issues & Solutions
+
+**"Connection refused" Error:**
+```bash
+# Check if backend is running
+curl http://localhost:8000/health
+
+# If not running, start it
+cd shuttle-backend && cargo run
+```
+
+**"Frontend not loading" Error:**
+```bash
+# Check if frontend is running
+curl http://localhost:5173
+
+# If not running, start it  
+cd SOL2INK-frontend && npm run dev
+```
+
+**"No embeddings found" Error:**
+```bash
+# Re-run embedding process
+python3 embed_codebase.py ../ink-examples-main --collection code_knowledge
+```
+
+**"Timeout" Errors:**
+```bash
+# Check Qdrant is running
+docker ps | grep qdrant
+
+# If not running
+docker run -p 6334:6334 qdrant/qdrant
 ```
 
 ## 📋 Dependencies

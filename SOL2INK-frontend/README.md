@@ -27,134 +27,51 @@ The SOL2INK Migration Assistant provides AI-powered guidance for migrating smart
 - **TypeScript** - Type safety and better DX
 - **Vite** - Lightning fast build tool and dev server
 - **TanStack Router** - Type-safe file-based routing
-- **TanStack React Query** - Server state management and caching
 - **TailwindCSS v4** - Utility-first CSS framework
 - **shadcn/ui** - Beautiful, accessible component library
-- **Lucide React** - Modern icon library
 - **React Markdown** - Markdown rendering with syntax highlighting
-- **React Syntax Highlighter** - Code syntax highlighting
 
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
 - Node.js 20.19.0+ or 22.12.0+
-- npm, yarn, or bun
-- SOL2INK Backend running on `localhost:8000`
+- SOL2INK Backend running on `localhost:8000` (see [shuttle-backend README](../shuttle-backend/README.md))
 
-### Installation
+### Installation & Setup
 
-1. **Clone and navigate to the project:**
-   ```bash
-   git clone <repository-url>
-   cd SOL2INK-frontend
-   ```
+```bash
+# 1. Clone and navigate
+git clone <repository-url>
+cd SOL2INK-frontend
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+# 2. Install dependencies
+npm install
 
-3. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
+# 3. Start development server
+npm run dev
 
-4. **Open [http://localhost:5173](http://localhost:5173) in your browser**
+# 4. Open http://localhost:5173
+```
 
-### Backend Integration
+### Start Backend
 
-The frontend connects to the SOL2INK backend API at `http://localhost:8000`. Make sure the backend is running:
+The frontend requires the backend to be running:
 
 ```bash
 cd ../shuttle-backend
 cargo run
 ```
 
-## 📋 Available Scripts
+## 🎨 Usage
 
-- `npm run dev` - Start development server (port 5173)
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint for code quality
+### Migration Assistant Interface
 
-## 🏗 Project Structure
-
-```
-src/
-├── components/
-│   ├── ui/                    # shadcn/ui components
-│   │   ├── button.tsx
-│   │   ├── card.tsx
-│   │   ├── textarea.tsx
-│   │   └── badge.tsx
-│   ├── MigrationAssistant.tsx # Main migration assistant component
-│   ├── MarkdownRenderer.tsx   # Markdown rendering with syntax highlighting
-│   ├── theme-provider.tsx     # Theme context provider
-│   └── theme-toggle.tsx       # Dark/light mode toggle
-├── lib/
-│   └── utils.ts              # Utility functions and cn helper
-├── pages/
-│   ├── Home.tsx              # Home page component
-│   └── About.tsx             # About page component
-├── routes/                   # TanStack Router file-based routes
-│   ├── __root.tsx            # Root layout with navigation
-│   ├── index.tsx             # Home route (/)
-│   ├── about.tsx             # About route (/about)
-│   └── features.tsx          # Features route (/features)
-├── App.tsx                   # Main app component
-├── main.tsx                  # App entry point
-└── index.css                 # Global styles and Tailwind imports
-```
-
-## 🔧 Key Components
-
-### MigrationAssistant
-
-The main component that handles:
-- Query input and submission
-- Backend communication with retry logic
-- Error handling and user feedback
-- Connection status monitoring
-- Loading states and progress indicators
-
-**Features:**
-- Real-time backend connectivity status
-- Automatic retry with exponential backoff
-- Comprehensive error categorization
-- Quick example queries for common migration patterns
-- Markdown rendering for rich responses
-
-### Error Handling
-
-Robust error handling system that categorizes and handles:
-- **Network errors** - Connection failures, DNS issues
-- **Server errors** - Backend API errors, 5xx responses
-- **Timeout errors** - Request timeouts (30s default)
-- **Unknown errors** - Unexpected failures
-
-### Connection Management
-
-- **Real-time monitoring** - Connection status updates every 30 seconds
-- **Health checks** - Tests `/health` endpoint availability
-- **Visual indicators** - Clear connected/disconnected status
-- **Manual retry** - Users can manually test connections
-
-## 🎨 Styling & Theming
-
-- **TailwindCSS v4** - Latest version with PostCSS plugin
-- **Dark/Light mode** - Automatic theme switching support
-- **Component variants** - Using `class-variance-authority`
-- **Responsive design** - Mobile-first approach
-- **Custom animations** - Smooth transitions and loading states
-
-## 🤖 Migration Assistant Usage
-
-1. **Quick Examples** - Click any example query to see instant results
-2. **Custom Queries** - Type your migration questions in the textarea
-3. **Keyboard Shortcuts** - Use `Cmd/Ctrl + Enter` to submit quickly
+1. **Quick Examples** - Click any example query for instant results
+2. **Custom Queries** - Type migration questions in the textarea
+3. **Keyboard Shortcuts** - Use `Cmd/Ctrl + Enter` to submit
 4. **Error Recovery** - Automatic retries with manual fallback options
-5. **Connection Monitoring** - Real-time backend status in the header
+5. **Connection Status** - Real-time backend connectivity in header
 
 ### Example Queries
 
@@ -164,34 +81,21 @@ Robust error handling system that categorizes and handles:
 - "How do I implement multisig wallets in ink!?"
 - "How do I convert Solidity mappings to ink! storage?"
 
-## 🔗 API Integration
+## 🔧 Development
 
-The frontend integrates with the following backend endpoints:
+### Available Scripts
 
-- `GET /health` - Health check and connectivity testing
-- `POST /ask` - Main migration assistant queries
-- `GET /ask?query=...` - Alternative query endpoint
+- `npm run dev` - Start development server (port 5173)
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint for code quality
 
-All requests include:
-- 30-second timeout
-- Automatic retry logic (up to 3 attempts)
-- Exponential backoff delay
-- Comprehensive error handling
+### Key Components
 
-## 🧪 Testing
-
-Run the integration test to verify frontend-backend connectivity:
-
-```bash
-# From the project root
-python3 test_integration.py
-```
-
-This tests:
-- Backend health endpoint
-- Ask endpoint functionality
-- Complete integration workflow
-- Error handling scenarios
+- **MigrationAssistant** - Main component with query handling and error management
+- **MarkdownRenderer** - Rich markdown rendering with syntax highlighting
+- **Connection Management** - Real-time backend connectivity monitoring
+- **Error Handling** - Comprehensive error categorization and retry logic
 
 ## 🚀 Deployment
 
@@ -201,52 +105,26 @@ This tests:
 npm run build
 ```
 
-The build output will be in the `dist/` directory, ready for deployment to any static hosting service.
+Output will be in the `dist/` directory, ready for static hosting.
 
-### Environment Variables
+### Environment Configuration
 
-For production deployment, configure:
-- Backend API URL (default: `http://localhost:8000`)
-- Any additional environment-specific settings
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run linting (`npm run lint`)
-5. Test the build (`npm run build`)
-6. Commit your changes (`git commit -m 'Add amazing feature'`)
-7. Push to the branch (`git push origin feature/amazing-feature`)
-8. Open a Pull Request
-
-## 📄 License
-
-MIT License - feel free to use this project for your smart contract migration needs!
+For production deployment:
+- Configure backend API URL (default: `http://localhost:8000`)
+- Set up environment-specific variables as needed
 
 ## 🆘 Troubleshooting
 
-### Common Issues
-
 **Backend Connection Failed**
-- Ensure the backend is running on `localhost:8000`
+- Ensure backend is running on `localhost:8000`
 - Check if Qdrant database is running
 - Verify network connectivity
 
 **Build Errors**
 - Clear node_modules: `rm -rf node_modules && npm install`
-- Update dependencies: `npm update`
-- Check TypeScript configuration
-
-**Development Server Issues**
-- Try a different port: `npm run dev -- --port 3000`
 - Clear Vite cache: `npx vite --force`
 
-### Getting Help
-
-- Check the integration test results: `python3 test_integration.py`
-- Review browser console for detailed error messages
-- Verify backend logs for API-related issues
+**For detailed testing and integration setup, see [Backend README](../shuttle-backend/README.md)**
 
 ---
 
