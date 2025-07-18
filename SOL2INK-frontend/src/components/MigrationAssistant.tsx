@@ -78,10 +78,11 @@ const EXAMPLE_QUERIES = [
   }
 ];
 
-const API_BASE_URL = 'http://localhost:8000';
-const MAX_RETRIES = 3;
-const INITIAL_RETRY_DELAY = 1000; // 1 second
-const REQUEST_TIMEOUT = 30000; // 30 seconds
+// Configuration - can be moved to environment variables or config file
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const MAX_RETRIES = parseInt(import.meta.env.VITE_MAX_RETRIES || '3');
+const INITIAL_RETRY_DELAY = parseInt(import.meta.env.VITE_INITIAL_RETRY_DELAY || '1000');
+const REQUEST_TIMEOUT = parseInt(import.meta.env.VITE_REQUEST_TIMEOUT || '30000');
 
 export function MigrationAssistant() {
   const [query, setQuery] = useState('');

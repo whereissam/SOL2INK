@@ -3,7 +3,10 @@
 AI-powered assistant for migrating smart contracts from Solidity to ink!. Built with React frontend, Rust backend, and RAG system using Qdrant + Gemini API.
 
 ![Frontend Interface](https://i.imgur.com/La8gAlS.png)
+
 ![Migration Assistant](https://i.imgur.com/L4k2avn.png)
+
+![SOL2INK](https://i.imgur.com/cjwG43G.png)
 
 ## 🎯 Overview
 
@@ -17,7 +20,21 @@ The SOL2INK Migration Assistant helps developers seamlessly migrate smart contra
 
 ## 🚀 Quick Start
 
-### 1. Start Backend (5 minutes)
+### 1. Configuration Setup (Optional)
+
+The project uses centralized configuration in `config.json`. Default ports are:
+- Backend: 8000 (managed by Shuttle)
+- Frontend: 5173  
+- Qdrant: 6334
+
+```bash
+# To change ports, run the setup script
+python3 setup-config.py
+
+# Or manually edit config.json
+```
+
+### 2. Start Backend (5 minutes)
 
 ```bash
 # 1. Start Qdrant database
@@ -35,7 +52,7 @@ echo "GEMINI_API_KEY=your_api_key_here" >> .env
 cargo run
 ```
 
-### 2. Start Frontend
+### 3. Start Frontend
 
 ```bash
 cd SOL2INK-frontend
@@ -43,7 +60,7 @@ npm install
 npm run dev
 ```
 
-### 3. Open & Ask Questions!
+### 4. Open & Ask Questions!
 
 Open [http://localhost:5173](http://localhost:5173) and ask migration questions like:
 
@@ -86,6 +103,28 @@ Open [http://localhost:5173](http://localhost:5173) and ask migration questions 
 Frontend (React) ←→ Backend (Rust) ←→ Qdrant (Vector DB) ←→ Gemini API
                                    ↗
                            Migration Guides + Code Examples
+```
+
+## 🔧 Configuration
+
+The project uses centralized configuration files:
+
+- **`config.json`** - Main configuration file with port settings
+- **`config.py`** - Python configuration loader 
+- **`setup-config.py`** - Interactive configuration setup script
+- **`SOL2INK-frontend/.env`** - Frontend environment variables
+
+**Change ports easily:**
+```bash
+# Interactive setup
+python3 setup-config.py
+
+# Or edit config.json directly
+{
+  "backend": {"port": 8000},
+  "frontend": {"port": 5173},
+  "qdrant": {"port": 6334}
+}
 ```
 
 ## 📚 Documentation

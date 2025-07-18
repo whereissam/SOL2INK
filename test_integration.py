@@ -7,10 +7,11 @@ import requests
 import json
 import time
 import sys
+from config import config
 
 def test_backend_endpoints():
     """Test backend endpoints that the frontend uses."""
-    base_url = "http://localhost:8000"
+    base_url = config.backend_url
     
     print("🧪 Testing Backend Endpoints")
     print("=" * 50)
@@ -58,7 +59,7 @@ def test_backend_endpoints():
 
 def test_frontend_connection():
     """Test if frontend can be reached."""
-    frontend_url = "http://localhost:5173"  # Default Vite dev server port
+    frontend_url = config.frontend_url
     
     print("\n🌐 Testing Frontend Connection")
     print("=" * 50)
@@ -83,7 +84,7 @@ def test_integration_workflow():
     print("=" * 50)
     
     # Simulate frontend request to backend
-    backend_url = "http://localhost:8000"
+    backend_url = config.backend_url
     
     # Test the exact request the frontend makes
     test_queries = [

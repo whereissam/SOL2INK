@@ -1,0 +1,22 @@
+{
+  "backend": {
+    "port": 8000,
+    "host": "localhost",
+    "base_url": "http://localhost:8000"
+  },
+  "frontend": {
+    "port": 5173,
+    "host": "localhost",
+    "base_url": "http://localhost:5173"
+  },
+  "qdrant": {
+    "port": 6334,
+    "host": "localhost",
+    "base_url": "http://localhost:6334"
+  },
+  "api": {
+    "timeout": 30000,
+    "max_retries": 3,
+    "initial_retry_delay": 1000
+  }
+}

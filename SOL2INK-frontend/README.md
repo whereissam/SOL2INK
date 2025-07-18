@@ -36,7 +36,7 @@ The SOL2INK Migration Assistant provides AI-powered guidance for migrating smart
 ### Prerequisites
 
 - Node.js 20.19.0+ or 22.12.0+
-- SOL2INK Backend running on `localhost:8000` (see [shuttle-backend README](../shuttle-backend/README.md))
+- SOL2INK Backend running on `localhost:9000` (see [shuttle-backend README](../shuttle-backend/README.md))
 
 ### Installation & Setup
 
@@ -110,13 +110,13 @@ Output will be in the `dist/` directory, ready for static hosting.
 ### Environment Configuration
 
 For production deployment:
-- Configure backend API URL (default: `http://localhost:8000`)
+- Configure backend API URL (default: `http://localhost:9000`)
 - Set up environment-specific variables as needed
 
 ## 🆘 Troubleshooting
 
 **Backend Connection Failed**
-- Ensure backend is running on `localhost:8000`
+- Ensure backend is running on `localhost:9000`
 - Check if Qdrant database is running
 - Verify network connectivity
 

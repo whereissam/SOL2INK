@@ -17,3 +17,8 @@ shuttle-backend/venv/
 shuttle-backend/target/
 shuttle-backend/.env
 shuttle-backend/qdrant_storage/
+
+SOL2INK-frontend/node_modules/
+SOL2INK-frontend/dist/
+SOL2INK-frontend/build/
+SOL2INK-frontend/.env

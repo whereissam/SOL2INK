@@ -11,6 +11,10 @@ path = "src/lib.rs"
 name = "test_connection"
 path = "test_connection.rs"
 
+[[bin]]
+name = "standalone"
+path = "src/standalone.rs"
+
 [dependencies]
 # Shuttle dependencies
 shuttle-runtime = "0.56.0"

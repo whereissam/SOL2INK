@@ -1,7 +1,7 @@
 // Standalone version of DynaVest backend for Docker deployment
 // Alternative to Shuttle.dev for immediate deployment
 
-use axum::{
+use shuttle_axum::axum::{
     extract::{Path, State},
     http::StatusCode,
     response::Json,
@@ -300,7 +300,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("  - GET  /strategies/:account - Get strategies");
     info!("  - GET  /statistics - Platform stats");
 
-    axum::serve(listener, app).await?;
+    shuttle_axum::axum::serve(listener, app).await?;
 
     Ok(())
 }
