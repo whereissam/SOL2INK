@@ -70,7 +70,12 @@
       "Bash(forge build:*)",
       "Bash(SHUTTLE_ENV=local cargo run --bin dynavest-shuttle-backend)",
       "Bash(python test:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(PORT=9000 cargo run --bin dynavest-shuttle-backend)",
+      "Bash(PORT=9000 shuttle run --port 9000)",
+      "Bash(./start-backend.sh:*)",
+      "Bash(docker inspect:*)",
+      "Bash(tar:*)"
     ],
     "deny": []
   }

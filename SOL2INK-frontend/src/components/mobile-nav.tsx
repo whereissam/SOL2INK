@@ -50,6 +50,13 @@ export function MobileNav() {
               >
                 Features
               </Link>
+              <Link 
+                to="/migrations" 
+                className={`hover:text-blue-600 [&.active]:text-blue-600 [&.active]:font-medium transition-colors py-2 ${isDark ? 'text-gray-100' : 'text-gray-900'}`}
+                onClick={() => setIsOpen(false)}
+              >
+                Migrations
+              </Link>
             </div>
           </div>
         </div>

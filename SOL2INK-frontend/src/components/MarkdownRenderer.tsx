@@ -1,137 +1,162 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/components/theme-provider';
 
 interface MarkdownRendererProps {
   content: string;
   className?: string;
 }
 
+interface CodeProps {
+  node?: any;
+  inline?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+}
+
 export function MarkdownRenderer({ content, className }: MarkdownRendererProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  const CodeBlock = ({ inline, className, children, ...props }: CodeProps) => {
+    const match = /language-(\w+)/.exec(className || '');
+    return !inline && match ? (
+      <SyntaxHighlighter
+        style={isDark ? oneDark : oneLight}
+        language={match[1]}
+        PreTag="div"
+        className="rounded-md"
+        {...props}
+      >
+        {String(children).replace(/\n$/, '')}
+      </SyntaxHighlighter>
+    ) : (
+      <code className={`${className} bg-muted px-1 py-0.5 rounded text-sm font-mono`} {...props}>
+        {children}
+      </code>
+    );
+  };
+
   return (
-    <div className={cn("prose prose-slate max-w-none dark:prose-invert", className)}>
+    <div className={cn("prose prose-lg prose-gray dark:prose-invert max-w-none", className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          code({ node, inline, className, children, ...props }) {
-            const match = /language-(\w+)/.exec(className || '');
-            return !inline && match ? (
-              <SyntaxHighlighter
-                style={oneDark}
-                language={match[1]}
-                PreTag="div"
-                {...props}
-              >
-                {String(children).replace(/\n$/, '')}
-              </SyntaxHighlighter>
-            ) : (
-              <code className={className} {...props}>
+          code: CodeBlock,
+          pre: ({ children }) => <div className="not-prose my-6">{children}</div>,
+          // Enhanced headings with better spacing and styling
+          h1: ({ children }) => (
+            <h1 className="text-3xl font-bold mb-6 mt-8 first:mt-0 text-gray-900 dark:text-gray-100 border-b-2 border-gray-200 dark:border-gray-700 pb-3">
+              {children}
+            </h1>
+          ),
+          h2: ({ children }) => (
+            <h2 className="text-2xl font-semibold mb-4 mt-8 first:mt-0 text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2">
+              {children}
+            </h2>
+          ),
+          h3: ({ children }) => (
+            <h3 className="text-xl font-semibold mb-3 mt-6 first:mt-0 text-gray-800 dark:text-gray-200">
+              {children}
+            </h3>
+          ),
+          h4: ({ children }) => (
+            <h4 className="text-lg font-semibold mb-2 mt-4 first:mt-0 text-gray-700 dark:text-gray-300">
+              {children}
+            </h4>
+          ),
+          
+          // Enhanced paragraphs with better spacing
+          p: ({ children }) => (
+            <p className="mb-4 leading-relaxed text-gray-700 dark:text-gray-300 text-base">
+              {children}
+            </p>
+          ),
+          
+          // Enhanced lists with better spacing - FIXED list positioning
+          ul: ({ children }) => (
+            <ul className="mb-4 space-y-1 pl-6 list-disc text-gray-700 dark:text-gray-300">
+              {children}
+            </ul>
+          ),
+          ol: ({ children }) => (
+            <ol className="mb-4 space-y-1 pl-6 list-decimal text-gray-700 dark:text-gray-300">
+              {children}
+            </ol>
+          ),
+          li: ({ children }) => (
+            <li className="leading-relaxed mb-1 ml-2">{children}</li>
+          ),
+          
+          // Enhanced tables with better styling
+          table: ({ children }) => (
+            <div className="overflow-x-auto my-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+              <table className="w-full border-collapse bg-white dark:bg-gray-800">
                 {children}
-              </code>
-            );
-          },
-          table({ children }) {
-            return (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+              </table>
+            </div>
+          ),
+          thead: ({ children }) => (
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              {children}
+            </thead>
+          ),
+          th: ({ children }) => (
+            <th className="border-b border-gray-200 dark:border-gray-600 px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">
+              {children}
+            </th>
+          ),
+          td: ({ children }) => (
+            <td className="border-b border-gray-100 dark:border-gray-700 px-4 py-3 text-gray-700 dark:text-gray-300">
+              {children}
+            </td>
+          ),
+          
+          // Enhanced blockquotes with icons and better styling
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-4 border-blue-500 bg-blue-50 dark:bg-blue-950/30 pl-4 pr-3 py-3 my-4 rounded-r-lg">
+              <div className="flex items-start gap-2">
+                <span className="text-blue-500 text-sm">💡</span>
+                <div className="text-blue-800 dark:text-blue-200 italic font-medium text-sm">
                   {children}
-                </table>
+                </div>
               </div>
-            );
-          },
-          thead({ children }) {
-            return (
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                {children}
-              </thead>
-            );
-          },
-          tbody({ children }) {
-            return (
-              <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700">
-                {children}
-              </tbody>
-            );
-          },
-          th({ children }) {
-            return (
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-gray-400">
-                {children}
-              </th>
-            );
-          },
-          td({ children }) {
-            return (
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-                {children}
-              </td>
-            );
-          },
-          h1({ children }) {
-            return (
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4 mt-6">
-                {children}
-              </h1>
-            );
-          },
-          h2({ children }) {
-            return (
-              <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-3 mt-5">
-                {children}
-              </h2>
-            );
-          },
-          h3({ children }) {
-            return (
-              <h3 className="text-xl font-medium text-gray-700 dark:text-gray-300 mb-2 mt-4">
-                {children}
-              </h3>
-            );
-          },
-          p({ children }) {
-            return (
-              <p className="mb-4 text-gray-600 dark:text-gray-300 leading-relaxed">
-                {children}
-              </p>
-            );
-          },
-          ul({ children }) {
-            return (
-              <ul className="list-disc list-inside mb-4 space-y-1 text-gray-600 dark:text-gray-300">
-                {children}
-              </ul>
-            );
-          },
-          ol({ children }) {
-            return (
-              <ol className="list-decimal list-inside mb-4 space-y-1 text-gray-600 dark:text-gray-300">
-                {children}
-              </ol>
-            );
-          },
-          li({ children }) {
-            return (
-              <li className="mb-1">
-                {children}
-              </li>
-            );
-          },
-          blockquote({ children }) {
-            return (
-              <blockquote className="border-l-4 border-blue-500 pl-4 italic text-gray-600 dark:text-gray-300 my-4">
-                {children}
-              </blockquote>
-            );
-          },
-          strong({ children }) {
-            return (
-              <strong className="font-semibold text-gray-900 dark:text-white">
-                {children}
-              </strong>
-            );
-          },
+            </blockquote>
+          ),
+          
+          // Enhanced links
+          a: ({ href, children }) => (
+            <a
+              href={href}
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 transition-colors"
+              target={href?.startsWith('http') ? '_blank' : undefined}
+              rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+            >
+              {children}
+            </a>
+          ),
+          
+          // Horizontal rule styling
+          hr: () => (
+            <hr className="my-8 border-0 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent" />
+          ),
+          
+          // Enhanced strong/bold text
+          strong: ({ children }) => (
+            <strong className="font-bold text-gray-900 dark:text-gray-100">
+              {children}
+            </strong>
+          ),
+          
+          // Enhanced emphasis/italic text
+          em: ({ children }) => (
+            <em className="italic text-gray-800 dark:text-gray-200">
+              {children}
+            </em>
+          ),
         }}
       >
         {content}

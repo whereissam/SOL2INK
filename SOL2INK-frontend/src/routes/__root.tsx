@@ -35,6 +35,12 @@ export const Route = createRootRoute({
                 >
                   Features
                 </Link>
+                <Link 
+                  to="/migrations" 
+                  className="text-muted-foreground hover:text-foreground [&.active]:text-primary [&.active]:font-medium transition-colors"
+                >
+                  Migrations
+                </Link>
               </div>
             </div>
             <div className="flex items-center space-x-2">

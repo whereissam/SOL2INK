@@ -1,0 +1,36 @@
+{
+  "export_timestamp": "2025-07-18T14:15:38.032656",
+  "source_backend": "http://localhost:8000",
+  "dataset_name": "SOL2INK Migration Assistant Dataset",
+  "description": "Solidity to ink! smart contract migration dataset with embedded examples",
+  "total_documents": 12,
+  "total_sample_responses": 5,
+  "collections": {
+    "code_knowledge": "Smart contract code examples",
+    "migration_guides": "Migration documentation",
+    "defi_knowledge": "DeFi protocol information"
+  },
+  "document_types": [
+    "ink_concepts",
+    "flipper",
+    "multisig",
+    "ink_overview",
+    "erc20",
+    "mapping",
+    "ink_testing",
+    "events",
+    "incrementer",
+    "contract_terminate",
+    "erc721",
+    "cross_contract_calls"
+  ],
+  "languages": [
+    "rust"
+  ],
+  "file_structure": {
+    "documents.json": "All embedded documents with metadata and embeddings",
+    "sample_responses.json": "Sample AI responses for testing",
+    "metadata.json": "Dataset information and statistics",
+    "readme.md": "Usage instructions and examples"
+  }
+}

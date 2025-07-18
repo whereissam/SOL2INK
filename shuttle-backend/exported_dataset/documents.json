@@ -1,0 +1,143 @@
+[
+  {
+    "content": "\n// Contract events in ink!\n#[ink::contract]\nmod events {\n    /// Event emitted when a value is stored\n    #[ink(event)]\n    pub struct ValueStored {\n        #[ink(topic)]\n        by: AccountId,\n        #[ink(topic)]\n        value: u32,\n    }\n\n    #[ink(storage)]\n    pub struct Events {\n        value: u32,\n    }\n\n    impl Events {\n        #[ink(constructor)]\n        pub fn new() -> Self {\n            Self { value: 0 }\n        }\n\n        /// Store a value and emit an event\n        #[ink(message)]\n        pub fn store_value(&mut self, value: u32) {\n            self.value = value;\n            let caller = self.env().caller();\n            self.env().emit_event(ValueStored {\n                by: caller,\n                value,\n            });\n        }\n\n        /// Get the stored value\n        #[ink(message)]\n        pub fn get_value(&self) -> u32 {\n            self.value\n        }\n    }\n}\n",
+    "score": 0.059470087,
+    "metadata": {
+      "file_path": "ink-examples/events/lib.rs",
+      "category": "events",
+      "contract_type": "events",
+      "language": "rust",
+      "topic": "ink_smart_contracts",
+      "timestamp": "2025-07-18T12:07:47.755776+00:00"
+    }
+  },
+  {
+    "content": "Testing ink! contracts can be done using unit tests with #[ink::test] annotation and end-to-end tests with #[ink_e2e::test]. Unit tests run in an off-chain environment simulating contract execution, while e2e tests deploy and interact with contracts on a real blockchain node. Use ink::env::test utilities for setting up test environments, accounts, and balances.",
+    "score": 0.047939077,
+    "metadata": {
+      "category": "ink_testing",
+      "contract_type": "testing",
+      "language": "rust",
+      "topic": "ink_documentation",
+      "timestamp": "2025-07-18T12:07:47.758857+00:00"
+    }
+  },
+  {
+    "content": "\n// Incrementer Contract in ink!\n#[ink::contract]\nmod incrementer {\n    /// Defines the storage of your contract.\n    #[ink(storage)]\n    pub struct Incrementer {\n        /// Stores the current value.\n        value: i32,\n        /// Stores who can increment.\n        allowed: ink::storage::Mapping<AccountId, bool>,\n    }\n\n    impl Incrementer {\n        /// Constructor that initializes the `i32` value to the given `init_value`.\n        #[ink(constructor)]\n        pub fn new(init_value: i32) -> Self {\n            let mut allowed = ink::storage::Mapping::default();\n            let caller = Self::env().caller();\n            allowed.insert(caller, &true);\n            Self {\n                value: init_value,\n                allowed,\n            }\n        }\n\n        /// Increments the stored value by 1.\n        #[ink(message)]\n        pub fn inc(&mut self) -> Result<(), Error> {\n            let caller = self.env().caller();\n            if !self.allowed.get(caller).unwrap_or(false) {\n                return Err(Error::NotAllowed);\n            }\n            self.value = self.value.checked_add(1).ok_or(Error::Overflow)?;\n            Ok(())\n        }\n\n        /// Returns the current value.\n        #[ink(message)]\n        pub fn get(&self) -> i32 {\n            self.value\n        }\n    }\n}\n",
+    "score": 0.017575696,
+    "metadata": {
+      "topic": "ink_smart_contracts",
+      "file_path": "ink-examples/incrementer/lib.rs",
+      "category": "incrementer",
+      "contract_type": "counter",
+      "timestamp": "2025-07-18T12:07:47.754133+00:00",
+      "language": "rust"
+    }
+  },
+  {
+    "content": "\n// Simple Flipper Contract in ink!\n#[ink::contract]\nmod flipper {\n    /// Defines the storage of your contract.\n    #[ink(storage)]\n    pub struct Flipper {\n        /// Stores a single `bool` value on the storage.\n        value: bool,\n    }\n\n    impl Flipper {\n        /// Constructor that initializes the `bool` value to the given `init_value`.\n        #[ink(constructor)]\n        pub fn new(init_value: bool) -> Self {\n            Self { value: init_value }\n        }\n\n        /// Constructor that initializes the `bool` value to `false`.\n        #[ink(constructor)]\n        pub fn default() -> Self {\n            Self::new(Default::default())\n        }\n\n        /// A message that can be called on instantiated contracts.\n        /// This one flips the value of the stored `bool` from `true`\n        /// to `false` and vice versa.\n        #[ink(message)]\n        pub fn flip(&mut self) {\n            self.value = !self.value;\n        }\n\n        /// Simply returns the current value of our `bool`.\n        #[ink(message)]\n        pub fn get(&self) -> bool {\n            self.value\n        }\n    }\n}\n",
+    "score": 0.015345687,
+    "metadata": {
+      "file_path": "ink-examples/flipper/lib.rs",
+      "contract_type": "basic",
+      "language": "rust",
+      "timestamp": "2025-07-18T12:07:47.753596+00:00",
+      "category": "flipper",
+      "topic": "ink_smart_contracts"
+    }
+  },
+  {
+    "content": "\n// Contract termination example in ink!\n#[ink::contract]\nmod contract_terminate {\n    #[ink(storage)]\n    pub struct ContractTerminate {\n        /// Value stored in the contract\n        value: u32,\n        /// Contract owner\n        owner: AccountId,\n    }\n\n    impl ContractTerminate {\n        #[ink(constructor)]\n        pub fn new(value: u32) -> Self {\n            Self {\n                value,\n                owner: Self::env().caller(),\n            }\n        }\n\n        /// Get the stored value\n        #[ink(message)]\n        pub fn get_value(&self) -> u32 {\n            self.value\n        }\n\n        /// Terminate the contract (only owner)\n        #[ink(message)]\n        pub fn terminate(&mut self) -> Result<(), Error> {\n            let caller = self.env().caller();\n            if caller != self.owner {\n                return Err(Error::NotOwner);\n            }\n            self.env().terminate_contract(caller)\n        }\n    }\n\n    #[derive(Debug, PartialEq, Eq)]\n    #[ink::scale_derive(Encode, Decode, TypeInfo)]\n    pub enum Error {\n        NotOwner,\n    }\n}\n",
+    "score": 0.013326756,
+    "metadata": {
+      "language": "rust",
+      "topic": "ink_smart_contracts",
+      "category": "contract_terminate",
+      "timestamp": "2025-07-18T12:07:47.757511+00:00",
+      "contract_type": "lifecycle",
+      "file_path": "ink-examples/contract-terminate/lib.rs"
+    }
+  },
+  {
+    "content": "ink! contracts are compiled to WebAssembly (WASM) bytecode and executed on Substrate-based blockchains. Key concepts include: #[ink::contract] macro for contract definition, #[ink(storage)] for state variables, #[ink(constructor)] for initialization, #[ink(message)] for public functions, #[ink(event)] for event definitions, and cross-contract calls using ContractRef traits.",
+    "score": 0.01128151,
+    "metadata": {
+      "topic": "ink_documentation",
+      "category": "ink_concepts",
+      "timestamp": "2025-07-18T12:07:47.758409+00:00",
+      "language": "rust",
+      "contract_type": "documentation"
+    }
+  },
+  {
+    "content": "\n// Multisig contract in ink!\n#[ink::contract]\nmod multisig {\n    use ink::storage::Mapping;\n\n    #[ink(storage)]\n    pub struct Multisig {\n        /// Required number of confirmations\n        required: u32,\n        /// List of owners\n        owners: Vec<AccountId>,\n        /// Mapping of owner addresses\n        is_owner: Mapping<AccountId, bool>,\n        /// Transaction proposals\n        transactions: Vec<Transaction>,\n        /// Confirmations for each transaction\n        confirmations: Mapping<(u32, AccountId), bool>,\n    }\n\n    #[derive(scale::Encode, scale::Decode)]\n    #[cfg_attr(feature = \"std\", derive(scale_info::TypeInfo))]\n    pub struct Transaction {\n        pub to: AccountId,\n        pub value: Balance,\n        pub data: Vec<u8>,\n        pub executed: bool,\n    }\n\n    impl Multisig {\n        #[ink(constructor)]\n        pub fn new(owners: Vec<AccountId>, required: u32) -> Self {\n            let mut is_owner = Mapping::default();\n            for owner in &owners {\n                is_owner.insert(owner, &true);\n            }\n            Self {\n                required,\n                owners,\n                is_owner,\n                transactions: Vec::new(),\n                confirmations: Mapping::default(),\n            }\n        }\n\n        /// Submit a transaction proposal\n        #[ink(message)]\n        pub fn submit_transaction(&mut self, to: AccountId, value: Balance, data: Vec<u8>) -> u32 {\n            let transaction = Transaction {\n                to,\n                value,\n                data,\n                executed: false,\n            };\n            self.transactions.push(transaction);\n            self.transactions.len() as u32 - 1\n        }\n    }\n}\n",
+    "score": 0.0062523577,
+    "metadata": {
+      "file_path": "ink-examples/multisig/lib.rs",
+      "category": "multisig",
+      "contract_type": "security",
+      "topic": "ink_smart_contracts",
+      "language": "rust",
+      "timestamp": "2025-07-18T12:07:47.756428+00:00"
+    }
+  },
+  {
+    "content": "\n// Cross-contract calls in ink!\n#[ink::contract]\nmod cross_contract_calls {\n    use other_contract::OtherContractRef;\n\n    #[ink(storage)]\n    pub struct CrossContractCalls {\n        /// Address of the other contract\n        other_contract: OtherContractRef,\n    }\n\n    impl CrossContractCalls {\n        #[ink(constructor)]\n        pub fn new(other_contract_code_hash: Hash) -> Self {\n            let other_contract = OtherContractRef::new()\n                .code_hash(other_contract_code_hash)\n                .endowment(0)\n                .salt_bytes([0; 4])\n                .instantiate();\n            Self { other_contract }\n        }\n\n        /// Call another contract's method\n        #[ink(message)]\n        pub fn call_other_contract(&self) -> u32 {\n            self.other_contract.get_value()\n        }\n\n        /// Call and forward any errors\n        #[ink(message)]\n        pub fn call_other_contract_and_forward_errors(&self) -> Result<u32, OtherError> {\n            self.other_contract.get_value_or_error()\n        }\n    }\n}\n",
+    "score": -0.0015534535,
+    "metadata": {
+      "timestamp": "2025-07-18T12:07:47.755290+00:00",
+      "language": "rust",
+      "topic": "ink_smart_contracts",
+      "file_path": "ink-examples/cross-contract-calls/lib.rs",
+      "contract_type": "advanced",
+      "category": "cross_contract_calls"
+    }
+  },
+  {
+    "content": "\n// Basic contract with storage mapping in ink!\n#[ink::contract]\nmod mapping {\n    use ink::storage::Mapping;\n\n    #[ink(storage)]\n    pub struct MappingContract {\n        /// A simple mapping from AccountId to Balance\n        balances: Mapping<AccountId, Balance>,\n        /// Total supply of tokens\n        total_supply: Balance,\n    }\n\n    impl MappingContract {\n        #[ink(constructor)]\n        pub fn new() -> Self {\n            Self {\n                balances: Mapping::default(),\n                total_supply: 0,\n            }\n        }\n\n        /// Set balance for an account\n        #[ink(message)]\n        pub fn set_balance(&mut self, account: AccountId, balance: Balance) {\n            // Remove old balance from total supply\n            let old_balance = self.balances.get(&account).unwrap_or(0);\n            self.total_supply = self.total_supply - old_balance + balance;\n            \n            // Set new balance\n            self.balances.insert(&account, &balance);\n        }\n\n        /// Get balance for an account\n        #[ink(message)]\n        pub fn get_balance(&self, account: AccountId) -> Balance {\n            self.balances.get(&account).unwrap_or(0)\n        }\n\n        /// Get total supply\n        #[ink(message)]\n        pub fn get_total_supply(&self) -> Balance {\n            self.total_supply\n        }\n    }\n}\n",
+    "score": -0.0040624924,
+    "metadata": {
+      "language": "rust",
+      "timestamp": "2025-07-18T12:07:47.756942+00:00",
+      "file_path": "ink-examples/mapping/lib.rs",
+      "topic": "ink_smart_contracts",
+      "category": "mapping",
+      "contract_type": "storage"
+    }
+  },
+  {
+    "content": "ink! is a Rust-based embedded domain specific language (eDSL) for writing smart contracts for blockchains built on the Substrate framework. It provides a familiar Rust experience with additional contract-specific functionality. Key features include: storage handling with Mapping and Vec types, message and constructor annotations, event emission, cross-contract calls, and built-in testing frameworks.",
+    "score": -0.036005512,
+    "metadata": {
+      "topic": "ink_documentation",
+      "category": "ink_overview",
+      "contract_type": "documentation",
+      "language": "rust",
+      "timestamp": "2025-07-18T12:07:47.757964+00:00"
+    }
+  },
+  {
+    "content": "\n// ERC20 Token Implementation in ink!\n#[ink::contract]\nmod erc20 {\n    use ink::storage::Mapping;\n\n    /// A simple ERC-20 contract.\n    #[ink(storage)]\n    #[derive(Default)]\n    pub struct Erc20 {\n        /// Total token supply.\n        total_supply: Balance,\n        /// Mapping from owner to number of owned token.\n        balances: Mapping<AccountId, Balance>,\n        /// Mapping of the token amount which an account is allowed to withdraw\n        /// from another account.\n        allowances: Mapping<(AccountId, AccountId), Balance>,\n    }\n\n    impl Erc20 {\n        /// Creates a new ERC-20 contract with the specified initial supply.\n        #[ink(constructor)]\n        pub fn new(total_supply: Balance) -> Self {\n            let mut balances = Mapping::default();\n            let caller = Self::env().caller();\n            balances.insert(caller, &total_supply);\n            Self::env().emit_event(Transfer {\n                from: None,\n                to: Some(caller),\n                value: total_supply,\n            });\n            Self {\n                total_supply,\n                balances,\n                allowances: Default::default(),\n            }\n        }\n\n        /// Returns the total token supply.\n        #[ink(message)]\n        pub fn total_supply(&self) -> Balance {\n            self.total_supply\n        }\n\n        /// Returns the account balance for the specified `owner`.\n        #[ink(message)]\n        pub fn balance_of(&self, owner: AccountId) -> Balance {\n            self.balance_of_impl(&owner)\n        }\n\n        /// Transfers `value` amount of tokens from the caller's account to account `to`.\n        #[ink(message)]\n        pub fn transfer(&mut self, to: AccountId, value: Balance) -> Result<()> {\n            let from = self.env().caller();\n            self.transfer_from_to(&from, &to, value)\n        }\n\n        /// Allows `spender` to withdraw from the caller's account multiple times, up to\n        /// the `value` amount.\n        #[ink(message)]\n        pub fn approve(&mut self, spender: AccountId, value: Balance) -> Result<()> {\n            let owner = self.env().caller();\n            self.allowances.insert((&owner, &spender), &value);\n            self.env().emit_event(Approval {\n                owner,\n                spender,\n                value,\n            });\n            Ok(())\n        }\n    }\n}\n",
+    "score": -0.057801608,
+    "metadata": {
+      "contract_type": "token",
+      "category": "erc20",
+      "language": "rust",
+      "topic": "ink_smart_contracts",
+      "timestamp": "2025-07-18T12:07:47.749473+00:00",
+      "file_path": "ink-examples/erc20/lib.rs"
+    }
+  },
+  {
+    "content": "\n// ERC721 NFT Implementation in ink!\n#[ink::contract]\nmod erc721 {\n    use ink::storage::Mapping;\n\n    #[ink(storage)]\n    pub struct Erc721 {\n        /// Mapping from token ID to owner address\n        token_owner: Mapping<TokenId, AccountId>,\n        /// Mapping owner address to token count\n        owned_tokens_count: Mapping<AccountId, u32>,\n        /// Mapping from token ID to approved address\n        token_approvals: Mapping<TokenId, AccountId>,\n        /// Mapping from owner to operator approvals\n        operator_approvals: Mapping<(AccountId, AccountId), ()>,\n        /// Next available token ID\n        next_token_id: TokenId,\n    }\n\n    impl Erc721 {\n        #[ink(constructor)]\n        pub fn new() -> Self {\n            Self {\n                token_owner: Default::default(),\n                owned_tokens_count: Default::default(),\n                token_approvals: Default::default(),\n                operator_approvals: Default::default(),\n                next_token_id: 1,\n            }\n        }\n\n        /// Mint a new token to the specified address\n        #[ink(message)]\n        pub fn mint(&mut self, to: AccountId) -> Result<TokenId, Error> {\n            let token_id = self.next_token_id;\n            self.token_owner.insert(&token_id, &to);\n            \n            let count = self.owned_tokens_count.get(&to).unwrap_or(0);\n            self.owned_tokens_count.insert(&to, &(count + 1));\n            \n            self.next_token_id += 1;\n            Ok(token_id)\n        }\n    }\n}\n",
+    "score": -0.07696553,
+    "metadata": {
+      "language": "rust",
+      "category": "erc721",
+      "timestamp": "2025-07-18T12:07:47.754703+00:00",
+      "topic": "ink_smart_contracts",
+      "contract_type": "nft",
+      "file_path": "ink-examples/erc721/lib.rs"
+    }
+  }
+]

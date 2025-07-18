@@ -36,7 +36,7 @@ pub struct GeminiClient {
 impl GeminiClient {
     pub fn new(api_key: String) -> Self {
         let client = Client::builder()
-            .timeout(std::time::Duration::from_secs(10))
+            .timeout(std::time::Duration::from_secs(30))
             .build()
             .expect("Failed to create HTTP client");
         Self { client, api_key }
@@ -68,7 +68,7 @@ impl GeminiClient {
         };
 
         let url = format!(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={}",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={}",
             self.api_key
         );
 
