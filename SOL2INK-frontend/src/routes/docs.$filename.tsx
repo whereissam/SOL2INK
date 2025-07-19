@@ -123,10 +123,10 @@ function MarkdownViewer() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <Button asChild variant="outline" size="sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <Button asChild variant="outline" size="sm" className="w-fit">
             <Link to="/migrations">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Migrations
@@ -142,21 +142,25 @@ function MarkdownViewer() {
                 element.download = filename
                 element.click()
               }}
+              className="flex-1 sm:flex-none"
             >
               <Download className="h-4 w-4 mr-2" />
-              Download
+              <span className="hidden sm:inline">Download</span>
+              <span className="sm:hidden">DL</span>
             </Button>
             <Button
               variant="outline"
               size="sm"
               onClick={() => window.open(`/docs/${filename}`, '_blank')}
+              className="flex-1 sm:flex-none"
             >
               <ExternalLink className="h-4 w-4 mr-2" />
-              Raw
+              <span className="hidden sm:inline">Raw</span>
+              <span className="sm:hidden">Raw</span>
             </Button>
           </div>
         </div>
-        <h1 className="text-3xl font-bold">{getDocumentTitle(filename)}</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold break-words">{getDocumentTitle(filename)}</h1>
       </div>
 
       <div className="space-y-6">
@@ -176,7 +180,7 @@ function MarkdownViewer() {
 
         {/* Main Content */}
         <Card className="shadow-sm">
-          <CardContent className="p-8">
+          <CardContent className="p-4 sm:p-6 lg:p-8">
             <div className="prose prose-lg prose-gray dark:prose-invert max-w-none">
               <ReactMarkdown
                 remarkPlugins={[remarkGfm]}
@@ -184,24 +188,24 @@ function MarkdownViewer() {
                   code: CodeBlock,
                   pre: ({ children }) => <div className="not-prose my-6">{children}</div>,
                   
-                  // Enhanced headings with better spacing and styling
+                  // Enhanced headings with better spacing and mobile-responsive styling
                   h1: ({ children }) => (
-                    <h1 className="text-4xl font-bold mb-8 mt-12 first:mt-0 text-gray-900 dark:text-gray-100 border-b-2 border-gray-200 dark:border-gray-700 pb-4">
+                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 sm:mb-8 mt-8 sm:mt-12 first:mt-0 text-gray-900 dark:text-gray-100 border-b-2 border-gray-200 dark:border-gray-700 pb-3 sm:pb-4 break-words">
                       {children}
                     </h1>
                   ),
                   h2: ({ children }) => (
-                    <h2 className="text-3xl font-semibold mb-6 mt-12 first:mt-0 text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-3">
+                    <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold mb-4 sm:mb-6 mt-8 sm:mt-12 first:mt-0 text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2 sm:pb-3 break-words">
                       {children}
                     </h2>
                   ),
                   h3: ({ children }) => (
-                    <h3 className="text-2xl font-semibold mb-4 mt-8 first:mt-0 text-gray-800 dark:text-gray-200">
+                    <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-3 sm:mb-4 mt-6 sm:mt-8 first:mt-0 text-gray-800 dark:text-gray-200 break-words">
                       {children}
                     </h3>
                   ),
                   h4: ({ children }) => (
-                    <h4 className="text-xl font-semibold mb-3 mt-6 first:mt-0 text-gray-700 dark:text-gray-300">
+                    <h4 className="text-base sm:text-lg lg:text-xl font-semibold mb-2 sm:mb-3 mt-4 sm:mt-6 first:mt-0 text-gray-700 dark:text-gray-300 break-words">
                       {children}
                     </h4>
                   ),
@@ -228,10 +232,10 @@ function MarkdownViewer() {
                     <li className="leading-relaxed mb-2 ml-2">{children}</li>
                   ),
                   
-                  // Enhanced tables with better styling
+                  // Enhanced tables with better mobile styling
                   table: ({ children }) => (
-                    <div className="overflow-x-auto my-8 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-                      <table className="w-full border-collapse bg-white dark:bg-gray-800">
+                    <div className="overflow-x-auto my-6 sm:my-8 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                      <table className="w-full min-w-[300px] border-collapse bg-white dark:bg-gray-800 text-sm sm:text-base">
                         {children}
                       </table>
                     </div>
@@ -242,12 +246,12 @@ function MarkdownViewer() {
                     </thead>
                   ),
                   th: ({ children }) => (
-                    <th className="border-b border-gray-200 dark:border-gray-600 px-6 py-4 text-left font-semibold text-gray-900 dark:text-gray-100">
+                    <th className="border-b border-gray-200 dark:border-gray-600 px-3 sm:px-6 py-3 sm:py-4 text-left font-semibold text-gray-900 dark:text-gray-100 text-xs sm:text-sm">
                       {children}
                     </th>
                   ),
                   td: ({ children }) => (
-                    <td className="border-b border-gray-100 dark:border-gray-700 px-6 py-4 text-gray-700 dark:text-gray-300">
+                    <td className="border-b border-gray-100 dark:border-gray-700 px-3 sm:px-6 py-3 sm:py-4 text-gray-700 dark:text-gray-300 text-xs sm:text-sm break-words">
                       {children}
                     </td>
                   ),

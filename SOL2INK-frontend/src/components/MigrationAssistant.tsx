@@ -242,14 +242,14 @@ export function MigrationAssistant() {
   }, []);
 
   return (
-    <div className="max-w-6xl mx-auto p-6 space-y-6">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
       {/* Header with Connection Status */}
       <div className="text-center space-y-4">
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <div className="p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl">
-            <Code className="w-8 h-8 text-white" />
+            <Code className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-center sm:text-left break-words">
             Solidity to ink! Migration Assistant
           </h1>
         </div>
@@ -301,7 +301,7 @@ export function MigrationAssistant() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {EXAMPLE_QUERIES.map((example, index) => (
               <Button
                 key={index}
@@ -461,7 +461,7 @@ export function MigrationAssistant() {
           </CardHeader>
           <CardContent>
             {response.success ? (
-              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-6 border">
+              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-3 sm:p-6 border">
                 <MarkdownRenderer content={response.data} />
               </div>
             ) : (

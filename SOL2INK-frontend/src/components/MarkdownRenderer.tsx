@@ -47,24 +47,24 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
         components={{
           code: CodeBlock,
           pre: ({ children }) => <div className="not-prose my-6">{children}</div>,
-          // Enhanced headings with better spacing and styling
+          // Enhanced headings with better spacing and mobile-responsive styling
           h1: ({ children }) => (
-            <h1 className="text-3xl font-bold mb-6 mt-8 first:mt-0 text-gray-900 dark:text-gray-100 border-b-2 border-gray-200 dark:border-gray-700 pb-3">
+            <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 sm:mb-6 mt-6 sm:mt-8 first:mt-0 text-gray-900 dark:text-gray-100 border-b-2 border-gray-200 dark:border-gray-700 pb-2 sm:pb-3 break-words">
               {children}
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-2xl font-semibold mb-4 mt-8 first:mt-0 text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold mb-3 sm:mb-4 mt-6 sm:mt-8 first:mt-0 text-gray-800 dark:text-gray-200 border-b border-gray-200 dark:border-gray-700 pb-2 break-words">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-xl font-semibold mb-3 mt-6 first:mt-0 text-gray-800 dark:text-gray-200">
+            <h3 className="text-base sm:text-lg lg:text-xl font-semibold mb-2 sm:mb-3 mt-4 sm:mt-6 first:mt-0 text-gray-800 dark:text-gray-200 break-words">
               {children}
             </h3>
           ),
           h4: ({ children }) => (
-            <h4 className="text-lg font-semibold mb-2 mt-4 first:mt-0 text-gray-700 dark:text-gray-300">
+            <h4 className="text-base sm:text-lg font-semibold mb-2 mt-3 sm:mt-4 first:mt-0 text-gray-700 dark:text-gray-300 break-words">
               {children}
             </h4>
           ),
@@ -91,10 +91,10 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
             <li className="leading-relaxed mb-1 ml-2">{children}</li>
           ),
           
-          // Enhanced tables with better styling
+          // Enhanced tables with better mobile styling
           table: ({ children }) => (
-            <div className="overflow-x-auto my-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
-              <table className="w-full border-collapse bg-white dark:bg-gray-800">
+            <div className="overflow-x-auto my-4 sm:my-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+              <table className="w-full min-w-[300px] border-collapse bg-white dark:bg-gray-800 text-sm sm:text-base">
                 {children}
               </table>
             </div>
@@ -105,12 +105,12 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
             </thead>
           ),
           th: ({ children }) => (
-            <th className="border-b border-gray-200 dark:border-gray-600 px-4 py-3 text-left font-semibold text-gray-900 dark:text-gray-100">
+            <th className="border-b border-gray-200 dark:border-gray-600 px-2 sm:px-4 py-2 sm:py-3 text-left font-semibold text-gray-900 dark:text-gray-100 text-xs sm:text-sm">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border-b border-gray-100 dark:border-gray-700 px-4 py-3 text-gray-700 dark:text-gray-300">
+            <td className="border-b border-gray-100 dark:border-gray-700 px-2 sm:px-4 py-2 sm:py-3 text-gray-700 dark:text-gray-300 text-xs sm:text-sm break-words">
               {children}
             </td>
           ),
