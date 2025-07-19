@@ -75,7 +75,8 @@
       "Bash(PORT=9000 shuttle run --port 9000)",
       "Bash(./start-backend.sh:*)",
       "Bash(docker inspect:*)",
-      "Bash(tar:*)"
+      "Bash(tar:*)",
+      "Bash(python:*)"
     ],
     "deny": []
   }

@@ -202,9 +202,32 @@ struct StrategyResponse {
 
 #[derive(Debug, Serialize, Deserialize)]
 struct ApiResponse<T> {
-    pub success: bool,
+    pub object: String,
     pub data: Option<T>,
-    pub error: Option<String>,
+    pub error: Option<ApiError>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ApiError {
+    pub error_type: String,
+    pub code: String,
+    pub message: String,
+    pub param: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ListResponse<T> {
+    pub object: String,
+    pub data: Vec<T>,
+    pub has_more: bool,
+    pub url: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct DeletedResponse {
+    pub id: String,
+    pub object: String,
+    pub deleted: bool,
 }
 
 // Application state
@@ -370,7 +393,7 @@ async fn get_strategies_from_contract(
 // API handlers
 async fn health_check() -> Json<ApiResponse<String>> {
     Json(ApiResponse {
-        success: true,
+        object: "health_check".to_string(),
         data: Some("DynaVest Shuttle Backend is running!".to_string()),
         error: None,
     })
@@ -385,17 +408,27 @@ async fn save_strategy(
     // Validate request
     if request.strategy.name.is_empty() {
         return Ok(Json(ApiResponse {
-            success: false,
+            object: "error".to_string(),
             data: None,
-            error: Some("Strategy name cannot be empty".to_string()),
+            error: Some(ApiError {
+                error_type: "invalid_request_error".to_string(),
+                code: "parameter_missing".to_string(),
+                message: "Strategy name cannot be empty".to_string(),
+                param: Some("name".to_string()),
+            }),
         }));
     }
 
     if request.strategy.risk_level < 1 || request.strategy.risk_level > 10 {
         return Ok(Json(ApiResponse {
-            success: false,
+            object: "error".to_string(),
             data: None,
-            error: Some("Risk level must be between 1 and 10".to_string()),
+            error: Some(ApiError {
+                error_type: "invalid_request_error".to_string(),
+                code: "parameter_invalid".to_string(),
+                message: "Risk level must be between 1 and 10".to_string(),
+                param: Some("risk_level".to_string()),
+            }),
         }));
     }
 
@@ -420,7 +453,7 @@ async fn save_strategy(
             };
 
             Ok(Json(ApiResponse {
-                success: true,
+                object: "strategy".to_string(),
                 data: Some(response),
                 error: None,
             }))
