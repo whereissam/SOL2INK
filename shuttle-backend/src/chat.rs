@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tracing::info;
 use crate::gemini_client::GeminiClient;
+use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChatMessage {
@@ -12,14 +13,14 @@ pub struct ChatMessage {
     pub timestamp: chrono::DateTime<chrono::Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ChatRequest {
     pub message: String,
     pub user_id: String,
     pub session_id: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ChatResponse {
     pub message: String,
     pub keywords: Vec<String>,
@@ -27,7 +28,7 @@ pub struct ChatResponse {
     pub session_id: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct UISuggestion {
     pub component: String,
     pub data: HashMap<String, String>,

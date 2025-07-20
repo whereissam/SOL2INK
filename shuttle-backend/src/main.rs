@@ -5,6 +5,8 @@ use shuttle_axum::axum::{
     routing::{get, post, put, delete},
     Router,
 };
+use utoipa::{OpenApi, ToSchema};
+use utoipa_swagger_ui::SwaggerUi;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use shuttle_axum::ShuttleAxum;
@@ -104,7 +106,7 @@ struct Transaction {
 }
 
 // API request/response models
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 struct CreateStrategyRequest {
     pub account: String,
     pub strategy: StrategyData,
@@ -160,7 +162,7 @@ struct InitialDeposit {
     pub token: String,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 struct StrategyData {
     pub name: String,
     pub risk_level: i32,
@@ -191,7 +193,7 @@ struct CrossChainStrategyRequest {
     pub preferred_chains: Option<Vec<String>>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 struct StrategyResponse {
     pub name: String,
     pub risk_level: i32,
@@ -200,14 +202,15 @@ struct StrategyResponse {
     pub is_active: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 struct ApiResponse<T> {
     pub object: String,
+    pub success: bool,
     pub data: Option<T>,
     pub error: Option<ApiError>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 struct ApiError {
     pub error_type: String,
     pub code: String,
@@ -261,6 +264,42 @@ impl Default for ContractConfig {
         }
     }
 }
+
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        health_check,
+        save_strategy,
+        get_strategies
+    ),
+    components(
+        schemas(
+            ApiResponse<String>,
+            ApiResponse<StrategyResponse>,
+            ApiResponse<Vec<StrategyResponse>>,
+            ApiResponse<i64>,
+            ApiError,
+            CreateStrategyRequest,
+            StrategyData,
+            StrategyResponse,
+            ChatRequest,
+            ChatResponse,
+            AskRequest
+        )
+    ),
+    tags(
+        (name = "health", description = "Health check endpoints"),
+        (name = "strategies", description = "Strategy management endpoints"),
+        (name = "chat", description = "Chat and AI endpoints"),
+        (name = "rag", description = "RAG and semantic search endpoints")
+    ),
+    info(
+        title = "DynaVest Backend API",
+        version = "1.0.0",
+        description = "API for DynaVest - AI-powered investment strategy platform"
+    )
+)]
+struct ApiDoc;
 
 // Database functions
 async fn create_strategy_in_db(
@@ -391,14 +430,33 @@ async fn get_strategies_from_contract(
 }
 
 // API handlers
+#[utoipa::path(
+    get,
+    path = "/health",
+    tag = "health",
+    responses(
+        (status = 200, description = "Service is healthy", body = ApiResponse<String>)
+    )
+)]
 async fn health_check() -> Json<ApiResponse<String>> {
     Json(ApiResponse {
         object: "health_check".to_string(),
+        success: true,
         data: Some("DynaVest Shuttle Backend is running!".to_string()),
         error: None,
     })
 }
 
+#[utoipa::path(
+    post,
+    path = "/strategies",
+    tag = "strategies",
+    request_body = CreateStrategyRequest,
+    responses(
+        (status = 200, description = "Strategy created successfully", body = ApiResponse<StrategyResponse>),
+        (status = 500, description = "Internal server error")
+    )
+)]
 async fn save_strategy(
     State(state): State<AppState>,
     Json(request): Json<CreateStrategyRequest>,
@@ -409,6 +467,7 @@ async fn save_strategy(
     if request.strategy.name.is_empty() {
         return Ok(Json(ApiResponse {
             object: "error".to_string(),
+            success: false,
             data: None,
             error: Some(ApiError {
                 error_type: "invalid_request_error".to_string(),
@@ -422,6 +481,7 @@ async fn save_strategy(
     if request.strategy.risk_level < 1 || request.strategy.risk_level > 10 {
         return Ok(Json(ApiResponse {
             object: "error".to_string(),
+            success: false,
             data: None,
             error: Some(ApiError {
                 error_type: "invalid_request_error".to_string(),
@@ -454,6 +514,7 @@ async fn save_strategy(
 
             Ok(Json(ApiResponse {
                 object: "strategy".to_string(),
+                success: true,
                 data: Some(response),
                 error: None,
             }))
@@ -465,6 +526,18 @@ async fn save_strategy(
     }
 }
 
+#[utoipa::path(
+    get,
+    path = "/strategies/account/{account}",
+    tag = "strategies",
+    params(
+        ("account" = String, Path, description = "Account ID to get strategies for")
+    ),
+    responses(
+        (status = 200, description = "Strategies retrieved successfully", body = ApiResponse<Vec<StrategyResponse>>),
+        (status = 500, description = "Internal server error")
+    )
+)]
 async fn get_strategies(
     State(state): State<AppState>,
     Path(account_id): Path<String>,
@@ -486,6 +559,7 @@ async fn get_strategies(
                 .collect();
 
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(response),
                 error: None,
@@ -498,6 +572,18 @@ async fn get_strategies(
     }
 }
 
+#[utoipa::path(
+    get,
+    path = "/strategies/account/{account}/count",
+    tag = "strategies",
+    params(
+        ("account" = String, Path, description = "Account ID to get strategy count for")
+    ),
+    responses(
+        (status = 200, description = "Strategy count retrieved successfully", body = ApiResponse<i64>),
+        (status = 500, description = "Internal server error")
+    )
+)]
 async fn get_strategy_count(
     State(state): State<AppState>,
     Path(account_id): Path<String>,
@@ -512,10 +598,12 @@ async fn get_strategy_count(
     .await
     {
         Ok(count) => Ok(Json(ApiResponse {
-            success: true,
-            data: Some(count),
-            error: None,
-        })),
+                object: "count".to_string(),
+                success: true,
+                data: Some(count),
+                error: None,
+        
+            })),
         Err(e) => {
             info!("Database query failed: {}", e);
             Err(StatusCode::INTERNAL_SERVER_ERROR)
@@ -523,6 +611,18 @@ async fn get_strategy_count(
     }
 }
 
+#[utoipa::path(
+    put,
+    path = "/strategies/{strategy_id}",
+    tag = "strategies",
+    params(
+        ("strategy_id" = String, Path, description = "Strategy ID to update")
+    ),
+    responses(
+        (status = 200, description = "Strategy updated successfully", body = ApiResponse<StrategyResponse>),
+        (status = 500, description = "Internal server error")
+    )
+)]
 async fn update_strategy(
     State(state): State<AppState>,
     Path(strategy_id): Path<String>,
@@ -533,18 +633,32 @@ async fn update_strategy(
     // Validate request
     if request.strategy.name.is_empty() {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Strategy name cannot be empty".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_missing".to_string(),
+                    message: "Strategy name cannot be empty".to_string(),
+                    param: Some("name".to_string()),
+                }),
+        
+            }));
     }
 
     if request.strategy.risk_level < 1 || request.strategy.risk_level > 10 {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Risk level must be between 1 and 10".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_invalid".to_string(),
+                    message: "Risk level must be between 1 and 10".to_string(),
+                    param: Some("risk_level".to_string()),
+                }),
+        
+            }));
     }
 
     // Update in database
@@ -559,6 +673,7 @@ async fn update_strategy(
             };
 
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(response),
                 error: None,
@@ -566,9 +681,15 @@ async fn update_strategy(
         }
         Ok(None) => {
             Ok(Json(ApiResponse {
+                object: "error".to_string(),
                 success: false,
                 data: None,
-                error: Some("Strategy not found or access denied".to_string()),
+                error: Some(ApiError {
+                    error_type: "not_found_error".to_string(),
+                    code: "strategy_not_found".to_string(),
+                    message: "Strategy not found or access denied".to_string(),
+                    param: None,
+                }),
             }))
         }
         Err(e) => {
@@ -578,6 +699,18 @@ async fn update_strategy(
     }
 }
 
+#[utoipa::path(
+    delete,
+    path = "/strategies/{strategy_id}",
+    tag = "strategies",
+    params(
+        ("strategy_id" = String, Path, description = "Strategy ID to delete")
+    ),
+    responses(
+        (status = 200, description = "Strategy deleted successfully", body = ApiResponse<String>),
+        (status = 500, description = "Internal server error")
+    )
+)]
 async fn delete_strategy(
     State(state): State<AppState>,
     Path(strategy_id): Path<String>,
@@ -589,6 +722,7 @@ async fn delete_strategy(
     match delete_strategy_in_db(&state.db, &strategy_id, &request.account).await {
         Ok(true) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some("Strategy deleted successfully".to_string()),
                 error: None,
@@ -596,9 +730,15 @@ async fn delete_strategy(
         }
         Ok(false) => {
             Ok(Json(ApiResponse {
+                object: "error".to_string(),
                 success: false,
                 data: None,
-                error: Some("Strategy not found or access denied".to_string()),
+                error: Some(ApiError {
+                    error_type: "not_found_error".to_string(),
+                    code: "strategy_not_found".to_string(),
+                    message: "Strategy not found or access denied".to_string(),
+                    param: None,
+                }),
             }))
         }
         Err(e) => {
@@ -608,6 +748,14 @@ async fn delete_strategy(
     }
 }
 
+#[utoipa::path(
+    get,
+    path = "/statistics",
+    tag = "strategies",
+    responses(
+        (status = 200, description = "Statistics retrieved successfully")
+    )
+)]
 async fn get_statistics() -> Json<ApiResponse<HashMap<String, i32>>> {
     let mut stats = HashMap::new();
     stats.insert("total_strategies".to_string(), 100);
@@ -615,6 +763,7 @@ async fn get_statistics() -> Json<ApiResponse<HashMap<String, i32>>> {
     stats.insert("avg_risk_level".to_string(), 6);
 
     Json(ApiResponse {
+        object: "statistics".to_string(),
         success: true,
         data: Some(stats),
         error: None,
@@ -631,18 +780,32 @@ async fn generate_cross_chain_strategy(
     // Validate request
     if request.risk_level < 1 || request.risk_level > 10 {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Risk level must be between 1 and 10".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_invalid".to_string(),
+                    message: "Risk level must be between 1 and 10".to_string(),
+                    param: Some("risk_level".to_string()),
+                }),
+        
+            }));
     }
 
     if request.investment_amount <= 0.0 {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Investment amount must be greater than 0".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_invalid".to_string(),
+                    message: "Investment amount must be greater than 0".to_string(),
+                    param: Some("investment_amount".to_string()),
+                }),
+        
+            }));
     }
 
     // Fetch cross-chain LP data
@@ -679,10 +842,12 @@ async fn generate_cross_chain_strategy(
     );
 
     Ok(Json(ApiResponse {
-        success: true,
-        data: Some(enhanced_params),
-        error: None,
-    }))
+                object: "response".to_string(),
+                success: true,
+                data: Some(enhanced_params),
+                error: None,
+    
+            }))
 }
 
 async fn get_cross_chain_opportunities(
@@ -694,16 +859,24 @@ async fn get_cross_chain_opportunities(
     // Validate risk level
     if risk_level < 1 || risk_level > 10 {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Risk level must be between 1 and 10".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_invalid".to_string(),
+                    message: "Risk level must be between 1 and 10".to_string(),
+                    param: Some("risk_level".to_string()),
+                }),
+        
+            }));
     }
 
     // Fetch cross-chain LP data
     match state.hyperbridge_client.fetch_cross_chain_lp_data(risk_level).await {
         Ok(lp_data) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(lp_data),
                 error: None,
@@ -716,6 +889,16 @@ async fn get_cross_chain_opportunities(
     }
 }
 
+#[utoipa::path(
+    post,
+    path = "/chat",
+    tag = "chat",
+    request_body = ChatRequest,
+    responses(
+        (status = 200, description = "Chat processed successfully", body = ApiResponse<ChatResponse>),
+        (status = 500, description = "Internal server error")
+    )
+)]
 async fn chat_endpoint(
     State(state): State<AppState>,
     Json(request): Json<ChatRequest>,
@@ -725,24 +908,39 @@ async fn chat_endpoint(
     // Validate request
     if request.message.trim().is_empty() {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Message cannot be empty".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_missing".to_string(),
+                    message: "Message cannot be empty".to_string(),
+                    param: Some("message".to_string()),
+                }),
+        
+            }));
     }
 
     if request.user_id.trim().is_empty() {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("User ID cannot be empty".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_missing".to_string(),
+                    message: "User ID cannot be empty".to_string(),
+                    param: Some("user_id".to_string()),
+                }),
+        
+            }));
     }
 
     // Process chat request
     match state.chat_service.process_chat(request).await {
         Ok(response) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(response),
                 error: None,
@@ -765,16 +963,24 @@ async fn defi_info_endpoint(
     // Validate request
     if request.input_text.trim().is_empty() {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Input text cannot be empty".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_missing".to_string(),
+                    message: "Input text cannot be empty".to_string(),
+                    param: Some("input_text".to_string()),
+                }),
+        
+            }));
     }
 
     // Process DeFi request
     match state.defi_service.handle_defi_info(request).await {
         Ok(response) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(response),
                 error: None,
@@ -802,6 +1008,7 @@ async fn crypto_prices_endpoint(
     match state.defi_service.get_crypto_prices(&token_list).await {
         Ok(prices) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(prices),
                 error: None,
@@ -824,16 +1031,24 @@ async fn create_contract_strategy(
     // Validate parameters
     if let Err(e) = ContractService::validate_strategy_params(&request) {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some(e.to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "service_error".to_string(),
+                    code: "processing_failed".to_string(),
+                    message: e.to_string(),
+                    param: None,
+                }),
+        
+            }));
     }
 
     // Create strategy on contract
     match state.contract_service.create_strategy_on_chain("user_account", request).await {
         Ok(strategy_id) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(strategy_id),
                 error: None,
@@ -855,16 +1070,24 @@ async fn invest_in_contract_strategy(
     // Validate parameters
     if let Err(e) = ContractService::validate_investment_params(&request) {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some(e.to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "service_error".to_string(),
+                    code: "processing_failed".to_string(),
+                    message: e.to_string(),
+                    param: None,
+                }),
+        
+            }));
     }
 
     // Invest in strategy
     match state.contract_service.invest_in_strategy("user_account", request).await {
         Ok(tx_hash) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(tx_hash),
                 error: None,
@@ -886,6 +1109,7 @@ async fn get_contract_strategies(
     match state.contract_service.get_user_strategies(&user_address).await {
         Ok(strategies) => {
             Ok(Json(ApiResponse {
+                object: "strategies".to_string(),
                 success: true,
                 data: Some(strategies),
                 error: None,
@@ -907,16 +1131,24 @@ async fn withdraw_from_contract_strategy(
     // Validate parameters
     if let Err(e) = ContractService::validate_withdraw_params(&request) {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some(e.to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "service_error".to_string(),
+                    code: "processing_failed".to_string(),
+                    message: e.to_string(),
+                    param: None,
+                }),
+        
+            }));
     }
 
     // Withdraw from strategy
     match state.contract_service.withdraw_from_strategy("user_account", request).await {
         Ok(tx_hash) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(tx_hash),
                 error: None,
@@ -939,16 +1171,24 @@ async fn semantic_search(
     // Validate request
     if request.query.trim().is_empty() {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Search query cannot be empty".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_missing".to_string(),
+                    message: "Search query cannot be empty".to_string(),
+                    param: Some("query".to_string()),
+                }),
+        
+            }));
     }
 
     // Search documents
     match state.rag_system.search_documents(&request.query, request.limit, request.score_threshold).await {
         Ok(results) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(results),
                 error: None,
@@ -970,16 +1210,24 @@ async fn rag_query(
     // Validate request
     if request.query.trim().is_empty() {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Query cannot be empty".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_missing".to_string(),
+                    message: "Query cannot be empty".to_string(),
+                    param: Some("query".to_string()),
+                }),
+        
+            }));
     }
 
     // Generate RAG response
     match state.rag_system.generate_rag_response(&request.query, request.limit).await {
         Ok(response) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(response),
                 error: None,
@@ -1001,10 +1249,17 @@ async fn add_document(
     // Validate request
     if request.text.trim().is_empty() {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Document text cannot be empty".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_missing".to_string(),
+                    message: "Document text cannot be empty".to_string(),
+                    param: Some("text".to_string()),
+                }),
+        
+            }));
     }
 
     // Add document to collection
@@ -1016,6 +1271,7 @@ async fn add_document(
     match state.rag_system.add_document(&request.text, metadata).await {
         Ok(doc_id) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(doc_id),
                 error: None,
@@ -1036,6 +1292,7 @@ async fn get_rag_stats(
     match state.rag_system.get_collection_stats().await {
         Ok(stats) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(stats),
                 error: None,
@@ -1048,7 +1305,7 @@ async fn get_rag_stats(
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 struct AskRequest {
     query: String,
 }
@@ -1070,6 +1327,16 @@ struct CodeExample {
     relevance_score: f32,
 }
 
+#[utoipa::path(
+    post,
+    path = "/ask",
+    tag = "rag",
+    request_body = AskRequest,
+    responses(
+        (status = 200, description = "Question answered successfully", body = ApiResponse<String>),
+        (status = 500, description = "Internal server error")
+    )
+)]
 async fn ask_endpoint(
     State(state): State<AppState>,
     Json(request): Json<AskRequest>,
@@ -1079,16 +1346,24 @@ async fn ask_endpoint(
     // Validate request
     if request.query.trim().is_empty() {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Query cannot be empty".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_missing".to_string(),
+                    message: "Query cannot be empty".to_string(),
+                    param: Some("query".to_string()),
+                }),
+        
+            }));
     }
 
     // Generate RAG response using Gemini API
     match state.rag_system.generate_rag_response(&request.query, 5).await {
         Ok(response) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(response),
                 error: None,
@@ -1110,16 +1385,24 @@ async fn ask_structured_endpoint(
     // Validate request
     if request.query.trim().is_empty() {
         return Ok(Json(ApiResponse {
-            success: false,
-            data: None,
-            error: Some("Query cannot be empty".to_string()),
-        }));
+                object: "error".to_string(),
+                success: false,
+                data: None,
+                error: Some(ApiError {
+                    error_type: "invalid_request_error".to_string(),
+                    code: "parameter_missing".to_string(),
+                    message: "Query cannot be empty".to_string(),
+                    param: Some("query".to_string()),
+                }),
+        
+            }));
     }
 
     // Generate structured RAG response
     match state.rag_system.generate_structured_response(&request.query, 5).await {
         Ok(response) => {
             Ok(Json(ApiResponse {
+                object: "response".to_string(),
                 success: true,
                 data: Some(response),
                 error: None,
@@ -1144,9 +1427,15 @@ async fn ask_get_endpoint(
     // Validate request
     if query.trim().is_empty() {
         return Ok(Json(ApiResponse {
+            object: "error".to_string(),
             success: false,
             data: None,
-            error: Some("Query parameter cannot be empty".to_string()),
+            error: Some(ApiError {
+                error_type: "invalid_request_error".to_string(),
+                code: "parameter_missing".to_string(),
+                message: "Query parameter cannot be empty".to_string(),
+                param: Some("query".to_string()),
+            }),
         }));
     }
 
@@ -1154,6 +1443,7 @@ async fn ask_get_endpoint(
     match state.rag_system.generate_rag_response(&query, 5).await {
         Ok(response) => {
             Ok(Json(ApiResponse {
+                object: "ask_response".to_string(),
                 success: true,
                 data: Some(response),
                 error: None,
@@ -1399,6 +1689,8 @@ async fn main(
         .layer(TimeoutLayer::new(std::time::Duration::from_secs(30)))
         .layer(RequestBodyLimitLayer::new(1024 * 1024)) // 1MB request limit
         .with_state(state);
+        // TODO: Add SwaggerUI integration - currently having compatibility issues
+        // .merge(SwaggerUi::new("/swagger-ui").url("/api-docs/openapi.json", ApiDoc::openapi()));
 
     info!("🚀 DynaVest Shuttle Backend is starting...");
     info!("📊 Available endpoints:");
@@ -1611,6 +1903,7 @@ async fn embed_contract_pairs_endpoint(
         Ok(result) => {
             info!("Contract embedding completed: {} pairs processed", result.processed_pairs);
             Ok(Json(ApiResponse {
+                object: "embedding_result".to_string(),
                 success: true,
                 data: Some(result),
                 error: None,
@@ -1662,6 +1955,7 @@ async fn get_contract_pairs_endpoint(
                 .collect();
             
             Ok(Json(ApiResponse {
+                object: "contract_pairs".to_string(),
                 success: true,
                 data: Some(pair_names),
                 error: None,

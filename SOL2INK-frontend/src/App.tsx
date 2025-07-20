@@ -1,5 +1,6 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { Code, Github, BookOpen } from "lucide-react";
+import ChatBotDialog from "./components/ChatBotDialog";
 
 export function App() {
   return (
@@ -55,6 +56,7 @@ export function App() {
       <main>
         <Outlet />
       </main>
+      <ChatBotDialog />
     </div>
   );
 }

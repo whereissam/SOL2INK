@@ -9,22 +9,23 @@ use std::collections::HashMap;
 use tracing::{info, error};
 use anyhow::Result;
 use uuid::Uuid;
+use utoipa::ToSchema;
 
 use crate::gemini_client::GeminiClient;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct EmbeddingRequest {
     pub text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct SearchRequest {
     pub query: String,
     pub limit: u64,
     pub score_threshold: Option<f32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct SearchResult {
     pub content: String,
     pub score: f32,

@@ -6,14 +6,15 @@ use sqlx::PgPool;
 use std::collections::HashMap;
 use std::sync::Arc;
 use tracing::{info, warn};
+use utoipa::ToSchema;
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct DefiInfoRequest {
     pub input_text: String,
     pub user_address: Option<String>,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 pub struct DefiResponse {
     pub response_type: String,
     pub data: serde_json::Value,

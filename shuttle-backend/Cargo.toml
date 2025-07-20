@@ -15,6 +15,10 @@ path = "test_connection.rs"
 name = "standalone"
 path = "src/standalone.rs"
 
+[[bin]]
+name = "test-server"
+path = "simple_test_server.rs"
+
 [dependencies]
 # Shuttle dependencies
 shuttle-runtime = "0.56.0"
@@ -70,6 +74,10 @@ dotenv = "0.15"
 
 # Parsing dependencies for migration training system
 regex = "1.10"
+
+# Swagger/OpenAPI dependencies
+utoipa = { version = "4.2", features = ["axum_extras", "chrono", "uuid"] }
+utoipa-swagger-ui = { version = "6.0", features = ["axum"] }
 
 [dev-dependencies]
 axum-test = "15.0"

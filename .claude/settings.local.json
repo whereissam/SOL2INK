@@ -76,7 +76,9 @@
       "Bash(./start-backend.sh:*)",
       "Bash(docker inspect:*)",
       "Bash(tar:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(timeout:*)",
+      "Bash(docker:*)"
     ],
     "deny": []
   }

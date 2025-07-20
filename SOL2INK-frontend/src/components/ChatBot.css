@@ -1,0 +1,107 @@
+/* ChatBot Enhanced Mobile Styles */
+
+.chatbot-container {
+  /* Hardware acceleration for smooth animations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Smooth slide animations */
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.message-enter {
+  animation: slideInFromBottom 0.3s ease-out;
+}
+
+/* Smooth typing indicator */
+@keyframes typingDot {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+.typing-dot {
+  animation: typingDot 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) {
+  animation-delay: 0ms;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 160ms;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 320ms;
+}
+
+/* Smooth button interactions */
+.interactive-button {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: translateZ(0);
+}
+
+.interactive-button:active {
+  transform: scale(0.95) translateZ(0);
+}
+
+/* Enhanced scroll behavior */
+.chat-messages {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.chat-messages::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 640px) {
+  .chatbot-container {
+    /* Reduce motion for better performance on mobile */
+    transition-duration: 0.2s;
+  }
+  
+  /* Larger touch targets */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* iOS specific fixes */
+@supports (-webkit-appearance: none) {
+  .chat-input {
+    /* Fix iOS input zoom */
+    font-size: 16px;
+  }
+}
+
+/* Backdrop blur fallback */
+@supports not (backdrop-filter: blur(10px)) {
+  .backdrop-blur-fallback {
+    background-color: rgba(249, 250, 251, 0.95);
+  }
+}
+
+/* Focus visible for accessibility */
+.focus-visible:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
